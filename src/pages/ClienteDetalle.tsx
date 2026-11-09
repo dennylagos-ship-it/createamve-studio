@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useAuth, useStudio } from '../lib/data'
 import { supabase } from '../lib/supabase'
 import { createVideos } from '../lib/actions'
@@ -10,6 +10,7 @@ import { ClientBadge } from './Inicio'
 import { COLORES } from './Clientes'
 import { IdeaList } from './Ideas'
 import type { Batch, Client } from '../lib/types'
+import { WhatsAppButton } from '../components/WhatsApp'
 
 export default function ClienteDetalle() {
   const { id } = useParams()
@@ -17,7 +18,8 @@ export default function ClienteDetalle() {
   const { profile } = useAuth()
   const run = useRun()
   const nav = useNavigate()
-  const [tab, setTab] = useState<'produccion' | 'ideas' | 'ficha'>('produccion')
+  const { hash } = useLocation()
+  const [tab, setTab] = useState<'produccion' | 'ideas' | 'ficha'>(() => (hash === '#ficha' ? 'ficha' : 'produccion'))
   const [newBatch, setNewBatch] = useState(false)
   const [showArchivedBatches, setShowArchivedBatches] = useState(false)
   const client = clients.find((c) => c.id === id)
@@ -38,6 +40,7 @@ export default function ClienteDetalle() {
         subtitle={client.archived ? 'Cliente archivado' : client.description || 'Sin descripción'}
         actions={
           <>
+            <WhatsAppButton client={client} />
             <button className="btn btn-primary" onClick={() => setNewBatch(true)}>+ Nuevo lote</button>
           </>
         }
@@ -84,7 +87,10 @@ export default function ClienteDetalle() {
           <label>Descripción<AutoField id="cl-desc" multiline rows={2} value={client.description} onSave={(v) => save({ description: v })} /></label>
           <label>Guía creativa y línea gráfica<AutoField id="cl-guia" multiline rows={5} value={client.creative_guide} placeholder="Tono, colores, tipografías, qué evitar, cuentas de referencia…" onSave={(v) => save({ creative_guide: v })} /></label>
           <label>Notas e instrucciones del cliente<AutoField id="cl-notas" multiline rows={4} value={client.notes} onSave={(v) => save({ notes: v })} /></label>
-          <label>Contacto operativo (opcional)<AutoField id="cl-contacto" value={client.contact} placeholder="Nombre y teléfono de quien aprueba" onSave={(v) => save({ contact: v })} /></label>
+          <div className="row wrap">
+            <label className="grow">Contacto (quien aprueba)<AutoField id="cl-contacto" value={client.contact} placeholder="Ej. Luna" onSave={(v) => save({ contact: v })} /></label>
+            <label className="grow">WhatsApp (con código de país)<AutoField id="cl-whatsapp" value={client.whatsapp} placeholder="+58 414 1234567" onSave={(v) => save({ whatsapp: v.trim() })} /></label>
+          </div>
           <label>Logo (enlace a imagen, opcional)<AutoField id="cl-logo" value={client.logo_url ?? ''} placeholder="https://…" onSave={(v) => save({ logo_url: v.trim() || null })} /></label>
           <fieldset className="colors">
             <legend>Color de identificación</legend>

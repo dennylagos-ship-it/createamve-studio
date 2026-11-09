@@ -443,3 +443,6 @@ label.check.big { font-size: 16px; }
 .feed-url { display: flex; gap: 8px; flex-wrap: wrap; }
 .feed-url input { flex: 1 1 260px; width: auto; font-size: 13px; }
 .steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; line-height: 1.55; }
+.btn-wa { background: #25d366; color: #06290f; }
+.btn-wa:hover:not(:disabled) { background: #3ee07a; }
+.chip.plain { padding: 6px 12px; }

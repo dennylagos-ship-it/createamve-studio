@@ -32,6 +32,7 @@ export interface Client {
   creative_guide: string
   notes: string
   contact: string
+  whatsapp: string
   color: string
   archived: boolean
   created_at: string

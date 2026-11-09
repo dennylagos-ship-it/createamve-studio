@@ -60,3 +60,10 @@ El selector oficial (Google Photos Picker API) se evaluará con una prueba técn
   ```
 
   Google refresca los calendarios suscritos cada varias horas; no es instantáneo.
+
+## WhatsApp con clientes
+
+Cada cliente tiene su número de WhatsApp (Ficha creativa). Desde la ficha del cliente o de un video, el botón **WhatsApp**
+abre un mensaje listo (guion para aprobar, fecha de grabación, video para revisión, entrega o mensaje libre) que se puede
+editar y se envía desde la propia app de WhatsApp (`wa.me`). Opcionalmente queda copia en los comentarios del video.
+No usa la API de WhatsApp Business: no hay costo ni verificación de Meta, pero tampoco envíos automáticos ni lectura de respuestas.

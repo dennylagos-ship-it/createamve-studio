@@ -11,6 +11,7 @@ import Guion from './video/Guion'
 import Material from './video/Material'
 import Checklist from './video/Checklist'
 import Entrega from './video/Entrega'
+import { WhatsAppButton } from '../components/WhatsApp'
 
 const TABS = [
   { id: 'resumen', label: 'Resumen' },
@@ -69,6 +70,7 @@ export default function VideoDetalle() {
           />
         </div>
         <div className="vh-status">
+          {client && <WhatsAppButton client={client} video={video} />}
           <StatusSelect id="video-estado" value={video.status} onChange={(s) => run(setStatus(video.id, s), `Estado: ${estadoInfo(s).short}`)} />
           <Progress value={progreso(video.status)} />
         </div>
