@@ -9,7 +9,7 @@ type Row = Record<string, any>
 type Db = Record<string, Row[]>
 type Listener = (table: string) => void
 
-const STORAGE_KEY = 'studio.demo.v1'
+const STORAGE_KEY = 'studio.demo.v2'
 let db: Db = load()
 const listeners = new Set<Listener>()
 
@@ -40,7 +40,7 @@ const now = () => new Date().toISOString()
 let historyId = 1000
 
 const DEFAULTS: Record<string, () => Row> = {
-  clients: () => ({ id: uid(), logo_url: null, description: '', creative_guide: '', notes: '', contact: '', color: '#FFC400', archived: false, created_by: DEMO_USER_ID, created_at: now(), updated_at: now() }),
+  clients: () => ({ id: uid(), logo_url: null, description: '', creative_guide: '', notes: '', contact: '', whatsapp: '', color: '#FFC400', archived: false, created_by: DEMO_USER_ID, created_at: now(), updated_at: now() }),
   batches: () => ({ id: uid(), start_date: null, end_date: null, position: 0, archived: false, created_by: DEMO_USER_ID, created_at: now() }),
   ideas: () => ({ id: uid(), client_id: null, summary: '', notes: '', reference_links: [], status: 'abierta', created_by: DEMO_USER_ID, created_at: now() }),
   videos: () => ({ id: uid(), batch_id: null, idea_id: null, number: 1, title: 'Video sin título', brief: '', script: '', shot_list: '', notes: '', status: 'por_grabar', record_date: null, edit_date: null, due_date: null, final_url: null, created_by: DEMO_USER_ID, created_at: now(), updated_at: now() }),

@@ -19,12 +19,12 @@ export function seed() {
     { id: 'u-cunado', full_name: 'Cuñado', email: 'cunado@createamve.demo', role: 'miembro', active: true, color: '#3D8BFF', created_at: t0 },
   ]
 
-  const client = (id: string, name: string, color: string, description: string, creative_guide = '') => ({
-    id, name, color, description, creative_guide, logo_url: null, notes: '', contact: '', archived: false, created_by: 'u-freddy', created_at: t0, updated_at: t0,
+  const client = (id: string, name: string, color: string, description: string, creative_guide = '', contact = '', whatsapp = '') => ({
+    id, name, color, description, creative_guide, logo_url: null, notes: '', contact, whatsapp, archived: false, created_by: 'u-freddy', created_at: t0, updated_at: t0,
   })
   const clients = [
-    client('c-luna', 'Luna Cuero', '#B46CFF', 'Cosméticos y accesorios de cuero. Reels de producto para Instagram.', 'Tonos cálidos, fondo crema, música suave. Mostrar siempre el logo Aria al final.'),
-    client('c-tinoco', 'Dra. Tinoco', '#3D8BFF', 'Clínica estética y odontológica. Contenido educativo.'),
+    client('c-luna', 'Luna Cuero', '#B46CFF', 'Cosméticos y accesorios de cuero. Reels de producto para Instagram.', 'Tonos cálidos, fondo crema, música suave. Mostrar siempre el logo Aria al final.', 'Luna', '+58 414 0000001'),
+    client('c-tinoco', 'Dra. Tinoco', '#3D8BFF', 'Clínica estética y odontológica. Contenido educativo.', '', '+58 424 0000002'),
     client('c-estilos', 'Estilos Center', '#FFC400', 'Peluquería y uñas. Antes y después, tendencias.'),
   ]
 
