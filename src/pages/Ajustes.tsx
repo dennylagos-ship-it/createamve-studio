@@ -3,6 +3,7 @@ import { useAuth } from '../lib/data'
 import { isDemo, supabase } from '../lib/supabase'
 import { feedUrl, getOrCreateFeedToken } from '../lib/gcal'
 import { COLORES } from './Clientes'
+import { Credito } from '../components/Layout'
 import { AutoField, Avatar, ConfirmButton, PageHeader, useRun, useToast } from '../components/ui'
 import { fotoAMiniatura } from '../lib/imagen'
 
@@ -66,6 +67,7 @@ export default function Ajustes() {
           enlaces temporales (unos 60 minutos) y hay que confirmar qué se puede reabrir días después y desde otra cuenta.
         </p>
       </section>
+      <Credito />
     </>
   )
 }

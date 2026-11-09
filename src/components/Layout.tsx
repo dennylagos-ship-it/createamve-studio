@@ -12,6 +12,18 @@ const NAV = [
   { to: '/equipo', label: 'Equipo', icon: IconTeam },
 ]
 
+/** Crédito del desarrollador. */
+export function Credito() {
+  return (
+    <p className="credito">
+      <img src={`${import.meta.env.BASE_URL}frontino.webp`} alt="" width={22} height={22} />
+      <span>
+        © {new Date().getFullYear()} Createamve · Desarrollado por <b>Frontino Software Solutions</b>
+      </span>
+    </p>
+  )
+}
+
 export function Brand() {
   return (
     <span className="brand">
@@ -50,6 +62,7 @@ export default function Layout() {
         <NavLink to="/ajustes" className="sidebar-foot">
           <IconGear /> Ajustes
         </NavLink>
+        <Credito />
       </aside>
 
       <div className="main">
