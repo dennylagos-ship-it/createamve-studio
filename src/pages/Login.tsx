@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { Brand } from '../components/Layout'
+import { Brand, Credito } from '../components/Layout'
 import { traducirError } from '../components/ui'
 
 export default function Login() {
@@ -73,6 +73,7 @@ export default function Login() {
           {mode !== 'signup' && <button type="button" className="link" onClick={() => setMode('signup')}>Crear cuenta</button>}
           {mode !== 'reset' && <button type="button" className="link" onClick={() => setMode('reset')}>Olvidé mi contraseña</button>}
         </div>
+        <Credito />
       </form>
     </div>
   )

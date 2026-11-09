@@ -10,7 +10,7 @@ export default defineConfig({
     VitePWA({
       disable: demo,
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.png', 'logo-negativo.webp'],
+      includeAssets: ['favicon.png', 'logo-negativo.webp', 'frontino.webp'],
       manifest: {
         name: 'CREATEAMVE Studio',
         short_name: 'Studio',
