@@ -16,7 +16,7 @@ const NAV = [
 export function Credito() {
   return (
     <p className="credito">
-      <img src={`${import.meta.env.BASE_URL}frontino.webp`} alt="" width={22} height={22} />
+      <img src={`${import.meta.env.BASE_URL}frontino.webp`} alt="" width={26} height={26} />
       <span>
         © {new Date().getFullYear()} Createamve · Desarrollado por <b>Frontino Software Solutions</b>
       </span>
