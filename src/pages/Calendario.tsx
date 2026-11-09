@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useStudio } from '../lib/data'
 import { addDays, diaSemana, nombreMes, startOfWeek, toDay, today } from '../lib/format'
 import { PageHeader, StatusPill } from '../components/ui'
+import { gcalLink } from '../lib/gcal'
 import type { Video } from '../lib/types'
 
 type Evento = { v: Video; kind: 'Grabación' | 'Edición' | 'Entrega'; tone: string }
@@ -62,18 +63,32 @@ export default function Calendario() {
               </h3>
               {evs.length === 0 && <p className="muted small">—</p>}
               {evs.map((e) => (
-                <Link key={e.v.id + e.kind} to={`/videos/${e.v.id}`} className={`event tone-${e.tone}`}>
-                  <span className="event-kind">{e.kind}</span>
-                  <b>{clientById(e.v.client_id)?.name}</b>
-                  <span>{e.v.title}</span>
-                  <StatusPill status={e.v.status} />
-                </Link>
+                <div key={e.v.id + e.kind} className={`event tone-${e.tone}`}>
+                  <Link to={`/videos/${e.v.id}`} className="event-link">
+                    <span className="event-kind">{e.kind}</span>
+                    <b>{clientById(e.v.client_id)?.name}</b>
+                    <span>{e.v.title}</span>
+                  </Link>
+                  <span className="row between">
+                    <StatusPill status={e.v.status} />
+                    <a
+                      className="gcal"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Agregar a Google Calendar"
+                      aria-label="Agregar a Google Calendar"
+                      href={gcalLink({ title: `${e.kind} · ${clientById(e.v.client_id)?.name ?? ''} · ${e.v.title}`, date: key })}
+                    >
+                      + GCal
+                    </a>
+                  </span>
+                </div>
               ))}
             </section>
           )
         })}
       </div>
-      <p className="muted small">Las fechas se ponen en la pestaña Resumen de cada video.</p>
+      <p className="muted small">Las fechas se ponen en la pestaña Resumen de cada video. Para ver todo esto en Google Calendar de forma automática, usa el enlace de suscripción en <Link to="/ajustes">Ajustes</Link>.</p>
     </>
   )
 }

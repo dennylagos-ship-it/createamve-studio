@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../lib/data'
-import { supabase } from '../lib/supabase'
+import { isDemo, supabase } from '../lib/supabase'
+import { feedUrl, getOrCreateFeedToken } from '../lib/gcal'
 import { COLORES } from './Clientes'
-import { AutoField, PageHeader, useRun } from '../components/ui'
+import { AutoField, ConfirmButton, PageHeader, useRun, useToast } from '../components/ui'
 
 export default function Ajustes() {
   const { profile, refreshProfile } = useAuth()
@@ -41,6 +42,8 @@ export default function Ajustes() {
         <button className="btn btn-ghost" onClick={() => supabase.auth.signOut()}>Cerrar sesión</button>
       </section>
 
+      <GoogleCalendar />
+
       <section className="panel">
         <h3>Instalar en el teléfono o la tablet</h3>
         <ul className="small perms">
@@ -62,5 +65,74 @@ export default function Ajustes() {
         </p>
       </section>
     </>
+  )
+}
+
+function GoogleCalendar() {
+  const toast = useToast()
+  const [token, setToken] = useState<string | null>(null)
+  const [soloMios, setSoloMios] = useState(true)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    getOrCreateFeedToken().then((t) => (t ? setToken(t) : setError(!isDemo)))
+  }, [])
+
+  const url = token ? feedUrl(token, soloMios) : ''
+  const copiar = async () => {
+    try {
+      await navigator.clipboard.writeText(url)
+      toast('Enlace copiado')
+    } catch {
+      toast('No se pudo copiar. Selecciona el enlace y cópialo a mano.', 'error')
+    }
+  }
+
+  return (
+    <section className="panel form">
+      <h3>Google Calendar</h3>
+      <p className="small">
+        Suscríbete una vez y las grabaciones, ediciones y entregas de Studio aparecen solas en tu Google Calendar, también
+        en el teléfono. Si alguien cambia una fecha en Studio, el calendario se actualiza en la siguiente sincronización de
+        Google (suele tardar unas horas).
+      </p>
+      {isDemo ? (
+        <p className="muted small">En la vista previa no hay enlace: se activa cuando la app esté conectada a la base de datos.</p>
+      ) : error ? (
+        <p className="form-error">No se pudo crear tu enlace de calendario. Recarga la página e inténtalo de nuevo.</p>
+      ) : token ? (
+        <>
+          <div className="segmented">
+            <button className={soloMios ? 'on' : ''} onClick={() => setSoloMios(true)}>Solo lo mío</button>
+            <button className={!soloMios ? 'on' : ''} onClick={() => setSoloMios(false)}>Todo el equipo</button>
+          </div>
+          <div className="feed-url">
+            <input id="aj-feed" readOnly value={url} onFocus={(e) => e.target.select()} aria-label="Enlace de suscripción" />
+            <button className="btn btn-primary" onClick={copiar}>Copiar enlace</button>
+          </div>
+          <ol className="steps small">
+            <li>Copia el enlace.</li>
+            <li>En una computadora, abre <a href="https://calendar.google.com/calendar/r/settings/addbyurl" target="_blank" rel="noopener noreferrer">Google Calendar → Agregar calendario → Desde URL</a>.</li>
+            <li>Pega el enlace y toca <b>Agregar calendario</b>. Aparecerá como “CREATEAMVE Studio” en todos tus dispositivos.</li>
+          </ol>
+          <p className="muted small">El enlace es personal. Si lo compartiste por error, genera uno nuevo y el anterior dejará de funcionar.</p>
+          <ConfirmButton
+            className="btn btn-ghost"
+            label="Generar enlace nuevo"
+            confirmLabel="El enlace actual dejará de funcionar. Toca otra vez"
+            onConfirm={async () => {
+              const t = await getOrCreateFeedToken(true)
+              if (t) {
+                setToken(t)
+                toast('Enlace nuevo generado. Vuelve a suscribirte en Google Calendar.')
+              }
+            }}
+          />
+        </>
+      ) : null}
+      <p className="muted small">
+        Para un evento suelto, cada fecha de un video y del Calendario tiene un botón “+ Google Calendar”.
+      </p>
+    </section>
   )
 }
