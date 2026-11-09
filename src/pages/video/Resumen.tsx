@@ -3,13 +3,14 @@ import { Link } from 'react-router-dom'
 import { useAuth, useStudio, useVideoRows } from '../../lib/data'
 import { setAssignees, updateVideo } from '../../lib/actions'
 import { ASIGNACIONES } from '../../lib/status'
-import { fmtDateTime } from '../../lib/format'
+import { fmtDateTime, pad2 } from '../../lib/format'
+import { gcalLink } from '../../lib/gcal'
 import { supabase } from '../../lib/supabase'
 import { AutoField, Avatar, ConfirmButton, useRun } from '../../components/ui'
 import type { Comment, TipoAsignacion, Video } from '../../lib/types'
 
 export default function Resumen({ video }: { video: Video }) {
-  const { batches, ideas, profiles, assigneesOf } = useStudio()
+  const { batches, ideas, profiles, assigneesOf, clientById, profileById } = useStudio()
   const run = useRun()
   const save = (patch: Partial<Video>) => run(updateVideo(video.id, patch))
   const idea = ideas.find((i) => i.id === video.idea_id)
@@ -61,9 +62,39 @@ export default function Resumen({ video }: { video: Video }) {
 
         <h3>Fechas</h3>
         <div className="dates">
-          <label>Grabación<input id="v-fgrab" type="date" value={video.record_date ?? ''} onChange={(e) => save({ record_date: e.target.value || null })} /></label>
-          <label>Edición<input id="v-fedit" type="date" value={video.edit_date ?? ''} onChange={(e) => save({ edit_date: e.target.value || null })} /></label>
-          <label>Entrega<input id="v-fentrega" type="date" value={video.due_date ?? ''} onChange={(e) => save({ due_date: e.target.value || null })} /></label>
+          {(
+            [
+              ['record_date', 'Grabación', 'grabacion'],
+              ['edit_date', 'Edición', 'edicion'],
+              ['due_date', 'Entrega', 'revision'],
+            ] as const
+          ).map(([campo, label, kind]) => {
+            const fecha = video[campo]
+            const resp = asg.filter((a) => a.kind === kind).map((a) => profileById(a.user_id)?.full_name).filter(Boolean).join(', ')
+            return (
+              <div key={campo} className="date-row">
+                <label>
+                  {label}
+                  <input id={`v-${campo}`} type="date" value={fecha ?? ''} onChange={(e) => save({ [campo]: e.target.value || null })} />
+                </label>
+                {fecha && (
+                  <a
+                    className="gcal"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Agregar este evento a Google Calendar"
+                    href={gcalLink({
+                      title: `${label} · ${clientById(video.client_id)?.name ?? ''} · ${video.title}`,
+                      date: fecha,
+                      details: [`Video ${pad2(video.number)}`, resp && `Responsable: ${resp}`, video.brief].filter(Boolean).join('\n'),
+                    })}
+                  >
+                    + Google Calendar
+                  </a>
+                )}
+              </div>
+            )
+          })}
         </div>
 
         <h3>Lote</h3>

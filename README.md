@@ -46,3 +46,17 @@ El checklist de la ficha se deriva de ese estado, así ficha y tablero nunca se 
 
 Etapa actual: cada toma se vincula con su enlace compartido de Google Fotos (o de un álbum compartido), con nombre, orden, nota y tipo; una toma puede pertenecer a varios videos sin duplicarse.
 El selector oficial (Google Photos Picker API) se evaluará con una prueba técnica: sus `baseUrl` caducan en ~60 minutos y no sirven como enlaces permanentes.
+
+## Google Calendar
+
+- Cada fecha de un video (y cada evento del Calendario) tiene un botón **+ Google Calendar** para agregarlo como evento suelto.
+- **Suscripción automática:** en Ajustes, cada persona copia su enlace personal y lo agrega en Google Calendar → *Desde URL*.
+  El enlace lo sirve la Edge Function `calendario` (feed `.ics`, solo lectura). Despliegue:
+
+  ```bash
+  supabase db push                                    # incluye la migración calendar_feeds
+  supabase functions deploy calendario --no-verify-jwt
+  supabase secrets set STUDIO_APP_URL=https://<url-de-la-app>   # opcional: enlaces a cada video
+  ```
+
+  Google refresca los calendarios suscritos cada varias horas; no es instantáneo.
