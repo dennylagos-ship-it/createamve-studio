@@ -14,6 +14,7 @@ export interface Profile {
   role: Rol
   active: boolean
   color: string
+  avatar_url?: string | null
   created_at: string
 }
 

@@ -3,7 +3,8 @@ import { useAuth } from '../lib/data'
 import { isDemo, supabase } from '../lib/supabase'
 import { feedUrl, getOrCreateFeedToken } from '../lib/gcal'
 import { COLORES } from './Clientes'
-import { AutoField, ConfirmButton, PageHeader, useRun, useToast } from '../components/ui'
+import { AutoField, Avatar, ConfirmButton, PageHeader, useRun, useToast } from '../components/ui'
+import { fotoAMiniatura } from '../lib/imagen'
 
 export default function Ajustes() {
   const { profile, refreshProfile } = useAuth()
@@ -21,6 +22,7 @@ export default function Ajustes() {
       <PageHeader title="Ajustes" />
       <section className="panel form">
         <h3>Mi perfil</h3>
+        <FotoPerfil onSave={save} />
         <label>Nombre<AutoField id="aj-nombre" value={profile.full_name} onSave={(v) => v.trim() && save({ full_name: v.trim() })} /></label>
         <p className="muted small">{profile.email} · {profile.role === 'admin' ? 'Administrador' : 'Miembro'}</p>
         <fieldset className="colors">
@@ -134,5 +136,38 @@ function GoogleCalendar() {
         Para un evento suelto, cada fecha de un video y del Calendario tiene un botón “+ Google Calendar”.
       </p>
     </section>
+  )
+}
+
+function FotoPerfil({ onSave }: { onSave: (patch: Record<string, unknown>) => Promise<void> }) {
+  const { profile } = useAuth()
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  if (!profile) return null
+  const elegir = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setBusy(true)
+    setError('')
+    try {
+      await onSave({ avatar_url: await fotoAMiniatura(file, 200) })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo cargar la foto')
+    }
+    setBusy(false)
+  }
+  return (
+    <div className="foto-perfil">
+      <label className="foto-pick" title="Cambiar foto">
+        <Avatar profile={profile} size={72} />
+        <input id="aj-foto" type="file" accept="image/*" onChange={elegir} disabled={busy} hidden />
+        <span className="foto-btn">{busy ? 'Cargando…' : profile.avatar_url ? 'Cambiar foto' : 'Subir mi foto'}</span>
+      </label>
+      {profile.avatar_url && !busy && (
+        <button type="button" className="link" onClick={() => onSave({ avatar_url: null })}>Quitar foto (usar iniciales)</button>
+      )}
+      {error && <p className="form-error">{error}</p>}
+    </div>
   )
 }

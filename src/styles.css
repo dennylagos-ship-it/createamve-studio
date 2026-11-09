@@ -260,6 +260,8 @@ label.check.big { font-size: 16px; }
 .foto-cliente { display: grid; justify-items: center; gap: 4px; }
 .foto-pick { display: grid; justify-items: center; gap: 6px; cursor: pointer; font-size: 12px; }
 .foto-pick:hover .client-badge { filter: brightness(1.1); }
+.foto-perfil { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .foto-btn { color: var(--amarillo); font-weight: 700; }
 .colors { border: 0; padding: 0; margin: 0; display: flex; gap: 8px; flex-wrap: wrap; }
 .colors legend { font-size: 13px; font-weight: 700; color: var(--suave); margin-bottom: 8px; }
