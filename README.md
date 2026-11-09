@@ -28,8 +28,16 @@ La **primera cuenta** que se registra queda como administrador. El resto entra p
 
 ## Publicar
 
-`npm run build` genera `dist/`, un sitio estático. Sirve en Vercel, Netlify o Hostinger
-(en Hostinger, sube `dist/` a `public_html` y redirige todas las rutas a `index.html`).
+El proyecto real de Createamve ya está en `.env.production` (URL + clave publishable), así que
+el build de producción se conecta solo, sin configurar variables en el hosting.
+
+- **Netlify**: "Add new site → Import from GitHub" y elegir este repo. `netlify.toml` ya trae
+  el comando de build, la carpeta `dist` y la redirección de rutas.
+- **Vercel**: importar el repo; `vercel.json` ya trae la redirección de rutas.
+- **Hostinger**: `npm run build` y subir el contenido de `dist/` a `public_html`, con todas las rutas
+  redirigidas a `index.html`.
+
+Después de publicar, pon la URL final en Supabase → **Authentication → URL Configuration → Site URL**.
 
 ## Estructura
 
