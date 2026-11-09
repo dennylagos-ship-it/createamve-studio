@@ -76,7 +76,7 @@ export function Avatar({ profile, size = 28 }: { profile?: Profile; size?: numbe
       title={profile.full_name}
       style={{ width: size, height: size, fontSize: size * 0.42, background: profile.color }}
     >
-      {initials(profile.full_name)}
+      {profile.avatar_url ? <img src={profile.avatar_url} alt="" /> : initials(profile.full_name)}
     </span>
   )
 }
