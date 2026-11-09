@@ -11,6 +11,7 @@ import { COLORES } from './Clientes'
 import { IdeaList } from './Ideas'
 import type { Batch, Client } from '../lib/types'
 import { WhatsAppButton } from '../components/WhatsApp'
+import { fotoAMiniatura } from '../lib/imagen'
 
 export default function ClienteDetalle() {
   const { id } = useParams()
@@ -78,7 +79,7 @@ export default function ClienteDetalle() {
       {tab === 'ficha' && (
         <section className="panel form">
           <div className="ficha-head">
-            <ClientBadge name={client.name} color={client.color} logo={client.logo_url} size={64} />
+            <FotoCliente client={client} onSave={(logo_url) => save({ logo_url })} />
             <label className="grow">
               Nombre comercial
               <AutoField id="cl-nombre" value={client.name} onSave={(v) => v.trim() && save({ name: v.trim() })} />
@@ -91,7 +92,6 @@ export default function ClienteDetalle() {
             <label className="grow">Contacto (quien aprueba)<AutoField id="cl-contacto" value={client.contact} placeholder="Ej. Luna" onSave={(v) => save({ contact: v })} /></label>
             <label className="grow">WhatsApp (con código de país)<AutoField id="cl-whatsapp" value={client.whatsapp} placeholder="+58 414 1234567" onSave={(v) => save({ whatsapp: v.trim() })} /></label>
           </div>
-          <label>Logo (enlace a imagen, opcional)<AutoField id="cl-logo" value={client.logo_url ?? ''} placeholder="https://…" onSave={(v) => save({ logo_url: v.trim() || null })} /></label>
           <fieldset className="colors">
             <legend>Color de identificación</legend>
             {COLORES.map((c) => (
@@ -258,5 +258,36 @@ function NuevoLote({ clientId, onClose }: { clientId: string; onClose: () => voi
         </div>
       </form>
     </Modal>
+  )
+}
+
+function FotoCliente({ client, onSave }: { client: Client; onSave: (logo: string | null) => unknown }) {
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const elegir = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setBusy(true)
+    setError('')
+    try {
+      await onSave(await fotoAMiniatura(file))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo cargar la foto')
+    }
+    setBusy(false)
+  }
+  return (
+    <div className="foto-cliente">
+      <label className="foto-pick" title="Cambiar foto">
+        <ClientBadge name={client.name} color={client.color} logo={client.logo_url} size={72} />
+        <input id="cl-foto" type="file" accept="image/*" onChange={elegir} disabled={busy} hidden />
+        <span className="foto-btn">{busy ? 'Cargando…' : client.logo_url ? 'Cambiar foto' : 'Subir foto'}</span>
+      </label>
+      {client.logo_url && !busy && (
+        <button type="button" className="link" onClick={() => onSave(null)}>Quitar</button>
+      )}
+      {error && <p className="form-error">{error}</p>}
+    </div>
   )
 }
