@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../lib/data'
 import { isDemo, supabase } from '../lib/supabase'
 import { feedUrl, getOrCreateFeedToken } from '../lib/gcal'
-import { COLORES } from './Clientes'
 import { Credito } from '../components/Layout'
-import { AutoField, Avatar, ConfirmButton, PageHeader, useRun, useToast } from '../components/ui'
+import { AutoField, Avatar, ConfirmButton, PageHeader, SelectorColor, useRun, useToast } from '../components/ui'
 import { fotoAMiniatura } from '../lib/imagen'
 
 export default function Ajustes() {
@@ -26,12 +25,7 @@ export default function Ajustes() {
         <FotoPerfil onSave={save} />
         <label>Nombre<AutoField id="aj-nombre" value={profile.full_name} onSave={(v) => v.trim() && save({ full_name: v.trim() })} /></label>
         <p className="muted small">{profile.email} · {profile.role === 'admin' ? 'Administrador' : 'Miembro'}</p>
-        <fieldset className="colors">
-          <legend>Mi color</legend>
-          {COLORES.map((c) => (
-            <button type="button" key={c} className={c === profile.color ? 'on' : ''} style={{ background: c }} onClick={() => save({ color: c })} aria-label={`Color ${c}`} />
-          ))}
-        </fieldset>
+        <SelectorColor legend="Mi color" value={profile.color} onChange={(color) => save({ color })} />
         <form
           className="row wrap"
           onSubmit={async (e) => {

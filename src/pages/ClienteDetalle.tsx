@@ -5,9 +5,8 @@ import { supabase } from '../lib/supabase'
 import { createVideos } from '../lib/actions'
 import { progreso } from '../lib/status'
 import { addDays, fmtDay, parseDay, startOfWeek, toDay, nombreMes } from '../lib/format'
-import { AutoField, ConfirmButton, Empty, Modal, PageHeader, Progress, VideoCard, useRun } from '../components/ui'
+import { AutoField, ConfirmButton, Empty, Modal, PageHeader, Progress, SelectorColor, VideoCard, useRun } from '../components/ui'
 import { ClientBadge } from './Inicio'
-import { COLORES } from './Clientes'
 import { IdeaList } from './Ideas'
 import type { Batch, Client } from '../lib/types'
 import { WhatsAppButton } from '../components/WhatsApp'
@@ -92,12 +91,7 @@ export default function ClienteDetalle() {
             <label className="grow">Contacto (quien aprueba)<AutoField id="cl-contacto" value={client.contact} placeholder="Ej. Luna" onSave={(v) => save({ contact: v })} /></label>
             <label className="grow">WhatsApp (con código de país)<AutoField id="cl-whatsapp" value={client.whatsapp} placeholder="+58 414 1234567" onSave={(v) => save({ whatsapp: v.trim() })} /></label>
           </div>
-          <fieldset className="colors">
-            <legend>Color de identificación</legend>
-            {COLORES.map((c) => (
-              <button type="button" key={c} className={c === client.color ? 'on' : ''} style={{ background: c }} onClick={() => save({ color: c })} aria-label={`Color ${c}`} />
-            ))}
-          </fieldset>
+          <SelectorColor legend="Color de identificación" value={client.color} onChange={(color) => save({ color })} />
           <div className="danger-zone">
             <button className="btn btn-ghost" onClick={() => save({ archived: !client.archived })}>
               {client.archived ? 'Reactivar cliente' : 'Archivar cliente'}

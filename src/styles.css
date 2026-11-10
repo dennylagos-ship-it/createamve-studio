@@ -267,6 +267,14 @@ label.check.big { font-size: 16px; }
 .colors legend { font-size: 13px; font-weight: 700; color: var(--suave); margin-bottom: 8px; }
 .colors button { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
 .colors button.on { border-color: var(--texto); box-shadow: 0 0 0 2px var(--fondo) inset; }
+.colors .color-libre {
+  position: relative; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: grid; place-items: center;
+  border: 2px dashed var(--suave); color: var(--suave); font: 700 18px/1 var(--f-body); overflow: hidden;
+  background: conic-gradient(#F2202B, #FFC400, #2BD47D, #22C6C6, #3D8BFF, #B46CFF, #F2202B);
+}
+.colors .color-libre span { width: 18px; height: 18px; border-radius: 50%; background: var(--capa); display: grid; place-items: center; font-size: 15px; }
+.colors .color-libre.on { border: 2px solid var(--texto); box-shadow: 0 0 0 2px var(--fondo) inset; }
+.colors .color-libre input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: 0; padding: 0; }
 .danger-zone { display: flex; gap: 10px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--borde); }
 .quick-add { display: flex; gap: 8px; flex-wrap: wrap; }
 .quick-add input { flex: 1 1 220px; width: auto; }
