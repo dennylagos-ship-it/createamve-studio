@@ -46,6 +46,7 @@ export interface Batch {
   name: string
   start_date: string | null
   end_date: string | null
+  photos_album_url: string | null
   position: number
   archived: boolean
   created_at: string

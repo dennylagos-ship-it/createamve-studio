@@ -52,9 +52,9 @@ export default function Ajustes() {
       <section className="panel">
         <h3>Google Fotos</h3>
         <p className="small">
-          Por ahora cada toma se vincula con su enlace compartido de Google Fotos (o el de un álbum compartido) desde la pestaña
-          <b> Material bruto</b> de cada video. Para que todo el equipo pueda abrirlas, el álbum o enlace debe estar compartido con
-          sus cuentas.
+          Crea un álbum compartido por lote y pega su enlace en el lote (ficha del cliente → ✎ del lote): todos los videos del lote
+          lo muestran en <b>Material bruto</b>. Si hace falta, cada toma también puede vincularse con su propio enlace. Para que todo
+          el equipo pueda abrirlas, el álbum o enlace debe estar compartido con sus cuentas.
         </p>
         <p className="small muted">
           El selector oficial de Google Fotos llegará en una etapa posterior, después de una prueba técnica: Google entrega
