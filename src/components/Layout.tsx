@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth, useStudio } from '../lib/data'
 import { Avatar } from './ui'
-import { fmtHora, fmtPublicacion, useAvisosPublicacion } from '../lib/publicacion'
+import { faltaParaPublicar, fmtHora, fmtPublicacion, useAvisosPublicacion } from '../lib/publicacion'
 
 const NAV = [
   { to: '/', label: 'Inicio', icon: IconHome, end: true },
@@ -142,10 +142,13 @@ export default function Layout() {
                   <Link to={`/videos/${v.id}`}>
                     {estado === 'atrasada' ? (
                       <b className="late">Atrasada ({fmtPublicacion(v.publish_at!)})</b>
-                    ) : (
+                    ) : estado === 'hoy' ? (
                       <b>Hoy a las {fmtHora(v.publish_at!)}</b>
+                    ) : (
+                      <b>Se publica {fmtPublicacion(v.publish_at!)}</b>
                     )}{' '}
                     {clientById(v.client_id)?.name} · {v.title}
+                    {!faltaParaPublicar(v).listo && <span className="falta"> · {faltaParaPublicar(v).texto}</span>}
                   </Link>
                 </li>
               ))}

@@ -3,7 +3,7 @@ import { updateVideo } from '../../lib/actions'
 import { useStudio } from '../../lib/data'
 import { fmtDateTime, isUrl, pad2 } from '../../lib/format'
 import { gcalLink } from '../../lib/gcal'
-import { PUBLICACION_INFO, estadoPublicacion, toLocalInput, useAhora } from '../../lib/publicacion'
+import { PUBLICACION_INFO, estadoPublicacion, faltaParaPublicar, toLocalInput, useAhora } from '../../lib/publicacion'
 import { ConfirmButton, useRun } from '../../components/ui'
 import type { Video } from '../../lib/types'
 
@@ -34,6 +34,9 @@ export default function Publicacion({ video }: { video: Video }) {
       {video.publish_by_us && (
         <>
           {info && <span className={`pill tone-${info.tone}`}>{info.label}</span>}
+          {!video.published_at && (
+            <span className={`small ${faltaParaPublicar(video).listo ? 'muted' : 'event-falta'}`}>{faltaParaPublicar(video).texto}</span>
+          )}
 
           {!video.published_at && (
             <>

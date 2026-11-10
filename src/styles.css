@@ -558,3 +558,18 @@ label.check.big { font-size: 16px; }
 .pauta-videos summary { cursor: pointer; font-size: 12px; font-weight: 700; color: var(--suave); margin-top: 4px; }
 .pauta-videos ul { margin: 4px 0 0; padding-left: 16px; display: grid; gap: 2px; }
 .pauta-videos a { color: var(--texto); font-size: 12.5px; }
+.quick-add .qa-publica { flex-basis: 100%; }
+.quick-add .qa-publica input { flex: none; width: auto; }
+.banner.publicar .falta { color: var(--naranja); font-weight: 700; }
+.vc-pub { font-size: 12px; font-weight: 700; color: var(--t-violeta); }
+.vc-pub.late { color: var(--t-rojo); }
+.event-falta { font-size: 12px; font-weight: 700; color: var(--naranja); }
+.por-publicar .agenda a { grid-template-columns: 110px 1fr auto; }
+@media (max-width: 860px) { .por-publicar .agenda a { grid-template-columns: 80px 1fr; } .por-publicar .agenda a > :last-child { grid-column: 2; justify-self: start; } }
+.nl-videos { display: grid; gap: 8px; }
+.nl-videos-title { font-weight: 700; font-size: 14px; }
+.nl-video { display: grid; grid-template-columns: 30px 1fr; gap: 6px 10px; align-items: center; padding: 10px; border: 1px solid var(--borde); border-radius: var(--r-s); background: var(--capa-2); }
+.nl-video.on { border-color: color-mix(in srgb, var(--t-violeta) 60%, var(--borde)); }
+.nl-video > .check, .nl-video > .nl-fecha { grid-column: 2; }
+.nl-num { font: 800 13px var(--f-display); color: var(--amarillo); }
+.nl-fecha { display: grid; gap: 4px; font-size: 13px; font-weight: 700; }

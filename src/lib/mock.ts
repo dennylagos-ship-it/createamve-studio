@@ -9,7 +9,7 @@ type Row = Record<string, any>
 type Db = Record<string, Row[]>
 type Listener = (table: string) => void
 
-const STORAGE_KEY = 'studio.demo.v4'
+const STORAGE_KEY = 'studio.demo.v5'
 let db: Db = load()
 const listeners = new Set<Listener>()
 

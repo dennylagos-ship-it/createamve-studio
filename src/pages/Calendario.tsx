@@ -4,7 +4,7 @@ import { useStudio } from '../lib/data'
 import { addDays, diaSemana, nombreMes, startOfWeek, toDay, today } from '../lib/format'
 import { PageHeader, StatusPill } from '../components/ui'
 import { gcalLink } from '../lib/gcal'
-import { PUBLICACION_INFO, estadoPublicacion, fmtHora, useAhora } from '../lib/publicacion'
+import { PUBLICACION_INFO, estadoPublicacion, faltaParaPublicar, fmtHora, useAhora } from '../lib/publicacion'
 import type { Video } from '../lib/types'
 
 type Tipo = 'Grabación' | 'Edición' | 'Entrega' | 'Publicación'
@@ -133,6 +133,9 @@ export default function Calendario() {
                     <span className="event-kind">{e.hora ? `${e.label} · ${e.hora}` : e.label}</span>
                     <b>{clientById(e.v.client_id)?.name}</b>
                     <span>{e.v.title}</span>
+                    {e.kind === 'Publicación' && !e.v.published_at && !faltaParaPublicar(e.v).listo && (
+                      <span className="event-falta">{faltaParaPublicar(e.v).texto}</span>
+                    )}
                   </Link>
                   <span className="row between">
                     <StatusPill status={e.v.status} />
