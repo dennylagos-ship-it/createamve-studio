@@ -78,7 +78,7 @@ export default function Calendario() {
           {profiles.filter((p) => p.active).map((p) => <option key={p.id} value={p.id}>{p.full_name}</option>)}
         </select>
         <select id="cal-tipo" value={tipo} onChange={(e) => setTipo(e.target.value)} aria-label="Tipo">
-          <option value="">Todo: grabación, edición, entrega y publicación</option>
+          <option value="">Todos los tipos</option>
           <option value="Grabación">Solo grabaciones</option>
           <option value="Edición">Solo ediciones</option>
           <option value="Entrega">Solo entregas</option>
