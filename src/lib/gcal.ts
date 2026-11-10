@@ -1,11 +1,22 @@
 import { addDays, parseDay, toDay } from './format'
 import { supabase, isDemo } from './supabase'
 
-/** Enlace "Agregar a Google Calendar" para un evento de día completo. */
-export function gcalLink(o: { title: string; date: string; details?: string }) {
-  const start = o.date.replaceAll('-', '')
-  const end = toDay(addDays(parseDay(o.date), 1)).replaceAll('-', '')
-  const p = new URLSearchParams({ action: 'TEMPLATE', text: o.title, dates: `${start}/${end}`, details: o.details ?? '' })
+/**
+ * Enlace "Agregar a Google Calendar". De día completo con `date`; si se pasa `start`
+ * (fecha y hora ISO), crea un evento de 30 minutos a esa hora.
+ */
+export function gcalLink(o: { title: string; date: string; start?: string; details?: string }) {
+  let dates: string
+  if (o.start) {
+    const utc = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+    const ini = new Date(o.start)
+    dates = `${utc(ini)}/${utc(new Date(ini.getTime() + 30 * 60_000))}`
+  } else {
+    const start = o.date.slice(0, 10).replaceAll('-', '')
+    const end = toDay(addDays(parseDay(o.date), 1)).replaceAll('-', '')
+    dates = `${start}/${end}`
+  }
+  const p = new URLSearchParams({ action: 'TEMPLATE', text: o.title, dates, details: o.details ?? '' })
   return `https://calendar.google.com/calendar/render?${p.toString()}`
 }
 

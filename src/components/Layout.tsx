@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth, useStudio } from '../lib/data'
 import { Avatar } from './ui'
+import { fmtHora, fmtPublicacion, useAvisosPublicacion } from '../lib/publicacion'
 
 const NAV = [
   { to: '/', label: 'Inicio', icon: IconHome, end: true },
@@ -38,7 +39,20 @@ export function Brand() {
 
 export default function Layout() {
   const { profile } = useAuth()
-  const { online, error } = useStudio()
+  const { online, error, clientById } = useStudio()
+  const avisos = useAvisosPublicacion()
+  const atrasadas = avisos.filter((a) => a.estado === 'atrasada').length
+
+  // Número en el ícono de la app instalada (si el dispositivo lo permite).
+  useEffect(() => {
+    const n = navigator as Navigator & { setAppBadge?: (n?: number) => Promise<void>; clearAppBadge?: () => Promise<void> }
+    try {
+      if (avisos.length > 0) n.setAppBadge?.(avisos.length)?.catch(() => {})
+      else n.clearAppBadge?.()?.catch(() => {})
+    } catch {
+      /* no soportado */
+    }
+  }, [avisos.length])
   const [q, setQ] = useState('')
   const [menu, setMenu] = useState(false)
   const nav = useNavigate()
@@ -75,6 +89,11 @@ export default function Layout() {
           {NAV.map(({ to, label, icon: I, end }) => (
             <NavLink key={to} to={to} end={end}>
               <I /> {label}
+              {to === '/calendario' && avisos.length > 0 && (
+                <span className={`nav-badge${atrasadas ? ' late' : ''}`} aria-label={`${avisos.length} publicaciones pendientes`}>
+                  {avisos.length}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -88,6 +107,7 @@ export default function Layout() {
         <header className="topbar">
           <button className="menu-btn" onClick={() => setMenu(true)} aria-label="Abrir menú" aria-expanded={menu} aria-controls="menu-lateral">
             <IconMenu />
+            {avisos.length > 0 && <span className={`menu-dot${atrasadas ? ' late' : ''}`} aria-hidden="true" />}
           </button>
           <span className="mobile-brand">
             <Brand />
@@ -110,6 +130,33 @@ export default function Layout() {
 
         {!online && <div className="banner warn">Sin conexión. Ves la última información cargada; los cambios no se guardarán hasta reconectar.</div>}
         {online && error && <div className="banner error">No se pudo sincronizar: {error}</div>}
+
+        {avisos.length > 0 && (
+          <div className={`banner publicar${atrasadas ? ' late' : ''}`} role="status">
+            <span className="publicar-titulo">
+              🔔 {avisos.length === 1 ? 'Publicación pendiente' : `${avisos.length} publicaciones pendientes`}
+            </span>
+            <ul>
+              {avisos.slice(0, 3).map(({ video: v, estado }) => (
+                <li key={v.id}>
+                  <Link to={`/videos/${v.id}`}>
+                    {estado === 'atrasada' ? (
+                      <b className="late">Atrasada ({fmtPublicacion(v.publish_at!)})</b>
+                    ) : (
+                      <b>Hoy a las {fmtHora(v.publish_at!)}</b>
+                    )}{' '}
+                    {clientById(v.client_id)?.name} · {v.title}
+                  </Link>
+                </li>
+              ))}
+              {avisos.length > 3 && (
+                <li>
+                  <Link to="/calendario">y {avisos.length - 3} más en el calendario →</Link>
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
 
         <main className="content">
           <Outlet />

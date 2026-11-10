@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
   if (!me?.active) return new Response('Cuenta inactiva', { status: 403 })
 
   const [{ data: videos }, { data: clients }, { data: asg }, { data: profiles }] = await Promise.all([
-    db.from('videos').select('id, number, title, status, record_date, edit_date, due_date, client_id, brief'),
+    db.from('videos').select('id, number, title, status, record_date, edit_date, due_date, client_id, brief, publish_by_us, publish_at, published_at, published_url'),
     db.from('clients').select('id, name, archived'),
     db.from('video_assignments').select('video_id, user_id, kind'),
     db.from('profiles').select('id, full_name'),
@@ -88,6 +88,32 @@ Deno.serve(async (req) => {
         ...(app ? [fold(`URL:${app}/videos/${v.id}`)] : []),
         `STATUS:${v.status === 'entregado' && e.kind === 'revision' ? 'CONFIRMED' : 'TENTATIVE'}`,
         'TRANSP:TRANSPARENT',
+        'END:VEVENT',
+      )
+    }
+
+    // Publicación programada (con hora): solo si la agencia publica el video.
+    if (v.publish_by_us && v.publish_at && !soloMios) {
+      const ini = new Date(v.publish_at)
+      const fin = new Date(ini.getTime() + 30 * 60_000)
+      const utc = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+      const desc = [
+        `Video ${String(v.number).padStart(2, '0')}`,
+        v.published_at ? 'Ya publicado' : 'Pendiente: marcar "Publicado" en Studio',
+        v.published_url ?? '',
+        app ? `${app}/videos/${v.id}` : '',
+      ].filter(Boolean).join('\n')
+      lines.push(
+        'BEGIN:VEVENT',
+        `UID:${v.id}-publicacion@createamve-studio`,
+        `DTSTAMP:${stamp}`,
+        `DTSTART:${utc(ini)}`,
+        `DTEND:${utc(fin)}`,
+        fold(`SUMMARY:${esc(`${v.published_at ? 'Publicado' : 'Publicar'} · ${c.name} · ${v.title}`)}`),
+        fold(`DESCRIPTION:${esc(desc)}`),
+        ...(app ? [fold(`URL:${app}/videos/${v.id}`)] : []),
+        `STATUS:${v.published_at ? 'CONFIRMED' : 'TENTATIVE'}`,
+        ...(v.published_at ? [] : ['BEGIN:VALARM', 'ACTION:DISPLAY', fold(`DESCRIPTION:${esc(`Publicar ${v.title}`)}`), 'TRIGGER:PT0M', 'END:VALARM']),
         'END:VEVENT',
       )
     }

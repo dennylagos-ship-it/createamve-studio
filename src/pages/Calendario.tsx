@@ -4,27 +4,59 @@ import { useStudio } from '../lib/data'
 import { addDays, diaSemana, nombreMes, startOfWeek, toDay, today } from '../lib/format'
 import { PageHeader, StatusPill } from '../components/ui'
 import { gcalLink } from '../lib/gcal'
+import { PUBLICACION_INFO, estadoPublicacion, fmtHora, useAhora } from '../lib/publicacion'
 import type { Video } from '../lib/types'
 
-type Evento = { v: Video; kind: 'Grabación' | 'Edición' | 'Entrega'; tone: string }
+type Tipo = 'Grabación' | 'Edición' | 'Entrega' | 'Publicación'
+type Evento = { v: Video; kind: Tipo; label: string; tone: string; hora?: string; grupo?: Video[] }
+
+/** Las grabaciones del mismo lote en el mismo día se muestran como una sola pauta. */
+function agruparPautas(evs: Evento[]): Evento[] {
+  const out: Evento[] = []
+  const porLote = new Map<string, Evento>()
+  for (const e of evs) {
+    const lote = e.v.batch_id
+    if (e.kind !== 'Grabación' || !lote) {
+      out.push(e)
+      continue
+    }
+    const g = porLote.get(lote)
+    if (g) g.grupo!.push(e.v)
+    else {
+      const nuevo = { ...e, grupo: [e.v] }
+      porLote.set(lote, nuevo)
+      out.push(nuevo)
+    }
+  }
+  return out.map((e) => (e.grupo && e.grupo.length < 2 ? { ...e, grupo: undefined } : e))
+}
 
 export default function Calendario() {
-  const { videos, clientById, assigneesOf, profiles } = useStudio()
+  const { videos, clientById, assigneesOf, profiles, batches } = useStudio()
   const [inicio, setInicio] = useState(() => startOfWeek(new Date()))
   const [resp, setResp] = useState('')
   const [tipo, setTipo] = useState('')
   const dias = Array.from({ length: 7 }, (_, i) => addDays(inicio, i))
   const hoy = today()
+  const ahora = useAhora()
+
+  const publicacion = (v: Video, d: string): Evento | null => {
+    const e = estadoPublicacion(v, ahora)
+    if (!e || !v.publish_at || toDay(new Date(v.publish_at)) !== d) return null
+    const label = e === 'atrasada' || e === 'publicada' ? PUBLICACION_INFO[e].label : 'Publicación'
+    return { v, kind: 'Publicación', label, tone: PUBLICACION_INFO[e].tone, hora: fmtHora(v.publish_at) }
+  }
 
   const eventos = (d: string): Evento[] =>
-    videos
+    agruparPautas(videos
       .filter((v) => !resp || assigneesOf(v.id).some((a) => a.user_id === resp))
       .flatMap((v) => [
-        v.record_date === d ? ({ v, kind: 'Grabación', tone: 'rojo' } as Evento) : null,
-        v.edit_date === d ? ({ v, kind: 'Edición', tone: 'azul' } as Evento) : null,
-        v.due_date === d ? ({ v, kind: 'Entrega', tone: 'verde' } as Evento) : null,
+        v.record_date === d ? ({ v, kind: 'Grabación', label: 'Grabación', tone: 'rojo' } as Evento) : null,
+        v.edit_date === d ? ({ v, kind: 'Edición', label: 'Edición', tone: 'azul' } as Evento) : null,
+        v.due_date === d ? ({ v, kind: 'Entrega', label: 'Entrega', tone: 'verde' } as Evento) : null,
+        publicacion(v, d),
       ])
-      .filter((e): e is Evento => !!e && (!tipo || e.kind === tipo))
+      .filter((e): e is Evento => !!e && (!tipo || e.kind === tipo)))
 
   const fin = dias[6]
   return (
@@ -46,10 +78,11 @@ export default function Calendario() {
           {profiles.filter((p) => p.active).map((p) => <option key={p.id} value={p.id}>{p.full_name}</option>)}
         </select>
         <select id="cal-tipo" value={tipo} onChange={(e) => setTipo(e.target.value)} aria-label="Tipo">
-          <option value="">Grabación, edición y entrega</option>
+          <option value="">Todo: grabación, edición, entrega y publicación</option>
           <option value="Grabación">Solo grabaciones</option>
           <option value="Edición">Solo ediciones</option>
           <option value="Entrega">Solo entregas</option>
+          <option value="Publicación">Solo publicaciones</option>
         </select>
       </div>
       <div className="week">
@@ -63,9 +96,41 @@ export default function Calendario() {
               </h3>
               {evs.length === 0 && <p className="muted small">—</p>}
               {evs.map((e) => (
+                e.grupo ? (
+                  <div key={'pauta' + e.v.batch_id} className={`event tone-${e.tone}`}>
+                    <Link to={`/clientes/${e.v.client_id}`} className="event-link">
+                      <span className="event-kind">Pauta · {e.grupo.length} videos</span>
+                      <b>{clientById(e.v.client_id)?.name}</b>
+                      <span>{batches.find((b) => b.id === e.v.batch_id)?.name}</span>
+                    </Link>
+                    <details className="pauta-videos">
+                      <summary>Ver videos</summary>
+                      <ul>
+                        {e.grupo.map((v) => (
+                          <li key={v.id}>
+                            <Link to={`/videos/${v.id}`}>{v.title}</Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                    <a
+                      className="gcal"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Agregar a Google Calendar"
+                      href={gcalLink({
+                        title: `Pauta · ${clientById(e.v.client_id)?.name ?? ''} · ${e.grupo.length} videos`,
+                        date: key,
+                        details: e.grupo.map((v) => `• ${v.title}`).join('\n'),
+                      })}
+                    >
+                      + GCal
+                    </a>
+                  </div>
+                ) : (
                 <div key={e.v.id + e.kind} className={`event tone-${e.tone}`}>
                   <Link to={`/videos/${e.v.id}`} className="event-link">
-                    <span className="event-kind">{e.kind}</span>
+                    <span className="event-kind">{e.hora ? `${e.label} · ${e.hora}` : e.label}</span>
                     <b>{clientById(e.v.client_id)?.name}</b>
                     <span>{e.v.title}</span>
                   </Link>
@@ -77,12 +142,17 @@ export default function Calendario() {
                       rel="noopener noreferrer"
                       title="Agregar a Google Calendar"
                       aria-label="Agregar a Google Calendar"
-                      href={gcalLink({ title: `${e.kind} · ${clientById(e.v.client_id)?.name ?? ''} · ${e.v.title}`, date: key })}
+                      href={gcalLink({
+                        title: `${e.kind === 'Publicación' ? 'Publicar' : e.kind} · ${clientById(e.v.client_id)?.name ?? ''} · ${e.v.title}`,
+                        date: key,
+                        start: e.kind === 'Publicación' ? (e.v.publish_at ?? undefined) : undefined,
+                      })}
                     >
                       + GCal
                     </a>
                   </span>
                 </div>
+                )
               ))}
             </section>
           )
