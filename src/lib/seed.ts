@@ -35,9 +35,9 @@ export function seed() {
   ]
 
   const batches = [
-    { id: 'b-luna', client_id: 'c-luna', name: `Semana del ${addDays(lunes, 0).getDate()} al ${addDays(lunes, 6).getDate()}`, start_date: d(0), end_date: d(6), photos_album_url: 'https://photos.app.goo.gl/ejemplo-album-luna', position: 0, archived: false, created_by: 'u-freddy', created_at: t0 },
-    { id: 'b-tinoco', client_id: 'c-tinoco', name: 'Lote educativo', start_date: d(0), end_date: d(13), photos_album_url: null, position: 0, archived: false, created_by: 'u-freddy', created_at: t0 },
-    { id: 'b-estilos', client_id: 'c-estilos', name: 'Colección de temporada', start_date: d(-3), end_date: d(4), photos_album_url: null, position: 0, archived: false, created_by: 'u-freddy', created_at: t0 },
+    { id: 'b-luna', client_id: 'c-luna', name: `Semana del ${addDays(lunes, 0).getDate()} al ${addDays(lunes, 6).getDate()}`, start_date: d(0), end_date: d(6), shoot_date: null, photos_album_url: 'https://photos.app.goo.gl/ejemplo-album-luna', position: 0, archived: false, created_by: 'u-freddy', created_at: t0 },
+    { id: 'b-tinoco', client_id: 'c-tinoco', name: 'Lote educativo', start_date: d(0), end_date: d(13), shoot_date: d(1), photos_album_url: null, position: 0, archived: false, created_by: 'u-freddy', created_at: t0 },
+    { id: 'b-estilos', client_id: 'c-estilos', name: 'Colección de temporada', start_date: d(-3), end_date: d(4), shoot_date: null, photos_album_url: null, position: 0, archived: false, created_by: 'u-freddy', created_at: t0 },
   ]
 
   const v = (id: string, client_id: string, batch_id: string, number: number, title: string, status: string, extra: Record<string, unknown> = {}) => ({
@@ -56,7 +56,7 @@ export function seed() {
     v('v-delineadores', 'c-luna', 'b-luna', 3, 'Delineadores', 'editado', { brief: 'Mostrar colores y aplicación.', record_date: d(-4), due_date: d(1), publish_by_us: true, publish_at: hora(-1, 18) }),
     v('v-laser', 'c-tinoco', 'b-tinoco', 1, 'Beneficios del láser', 'por_grabar', { record_date: d(1), due_date: d(6) }),
     v('v-dental', 'c-tinoco', 'b-tinoco', 2, 'Cuidado dental', 'en_edicion', { record_date: d(-1), edit_date: d(2), due_date: d(4) }),
-    v('v-reel', 'c-tinoco', 'b-tinoco', 3, 'Reel educativo: mitos', 'idea', {}),
+    v('v-reel', 'c-tinoco', 'b-tinoco', 3, 'Reel educativo: mitos', 'idea', { record_date: d(1) }),
     v('v-coleccion', 'c-estilos', 'b-estilos', 1, 'Nueva colección', 'grabado', { record_date: d(-1), edit_date: d(2), due_date: d(4), publish_by_us: true, publish_at: hora(5, 12) }),
     v('v-antes', 'c-estilos', 'b-estilos', 2, 'Antes y después', 'entregado', { record_date: d(-5), due_date: d(-1), final_url: 'https://drive.google.com/ejemplo', publish_by_us: true, publish_at: hora(0, 23, 30) }),
   ]

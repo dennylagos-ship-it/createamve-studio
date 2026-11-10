@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useAuth, useStudio } from '../lib/data'
 import { supabase } from '../lib/supabase'
-import { createVideos } from '../lib/actions'
+import { createVideos, setShootDate } from '../lib/actions'
 import { progreso } from '../lib/status'
 import { addDays, fmtDay, isGooglePhotos, isUrl, parseDay, startOfWeek, toDay, nombreMes } from '../lib/format'
 import { AutoField, ConfirmButton, Empty, Modal, PageHeader, Progress, SelectorColor, VideoCard, useRun } from '../components/ui'
@@ -131,6 +131,7 @@ function BatchBlock({ batch, clientId }: { batch: Batch | null; clientId?: strin
           <h2>{batch ? batch.name : 'Videos sin lote'}</h2>
           <p className="muted small">
             {batch?.start_date && `${fmtDay(batch.start_date)}${batch.end_date ? ` → ${fmtDay(batch.end_date)}` : ''} · `}
+            {batch?.shoot_date && `🎬 Pauta ${fmtDay(batch.shoot_date)} · `}
             {list.length} video{list.length === 1 ? '' : 's'} · {entregados} entregado{entregados === 1 ? '' : 's'}
           </p>
           {batch?.photos_album_url && (
@@ -154,6 +155,16 @@ function BatchBlock({ batch, clientId }: { batch: Batch | null; clientId?: strin
               <label>Inicio<input id="lote-ini" type="date" value={batch.start_date ?? ''} onChange={(e) => run(supabase.from('batches').update({ start_date: e.target.value || null }).eq('id', batch.id))} /></label>
               <label>Cierre<input id="lote-fin" type="date" value={batch.end_date ?? ''} onChange={(e) => run(supabase.from('batches').update({ end_date: e.target.value || null }).eq('id', batch.id))} /></label>
             </div>
+            <label>
+              Día de pauta (grabación del lote)
+              <input
+                id="lote-pauta"
+                type="date"
+                value={batch.shoot_date ?? ''}
+                onChange={(e) => run(setShootDate(batch, videos, e.target.value || null), e.target.value ? 'Día de pauta guardado' : undefined)}
+              />
+              <span className="muted small">Mueve también a los videos que seguían la pauta anterior. Los que cambiaste a mano a otro día se quedan donde están.</span>
+            </label>
             <AlbumLote batch={batch} />
             <div className="danger-zone">
               <button className="btn btn-ghost" onClick={() => run(supabase.from('batches').update({ archived: !batch.archived }).eq('id', batch.id), batch.archived ? 'Lote reactivado' : 'Lote movido al historial').then(() => setEditing(false))}>
@@ -227,6 +238,7 @@ function NuevoLote({ clientId, onClose }: { clientId: string; onClose: () => voi
   const [name, setName] = useState(`Semana del ${lunes.getDate()} al ${domingo.getDate()} de ${nombreMes(domingo)}`)
   const [start, setStart] = useState(toDay(lunes))
   const [end, setEnd] = useState(toDay(domingo))
+  const [pauta, setPauta] = useState('')
   const [cantidad, setCantidad] = useState(3)
   const [titulos, setTitulos] = useState('')
   const [busy, setBusy] = useState(false)
@@ -238,7 +250,7 @@ function NuevoLote({ clientId, onClose }: { clientId: string; onClose: () => voi
     e.preventDefault()
     setBusy(true)
     const b = await run(
-      supabase.from('batches').insert({ client_id: clientId, name: name.trim(), start_date: start || null, end_date: end || null }).select('*').single(),
+      supabase.from('batches').insert({ client_id: clientId, name: name.trim(), start_date: start || null, end_date: end || null, shoot_date: pauta || null }).select('*').single(),
     )
     if (b && b !== true) {
       const batch = b as Batch
@@ -267,6 +279,11 @@ function NuevoLote({ clientId, onClose }: { clientId: string; onClose: () => voi
           <label>Inicio (opcional)<input id="nl-ini" type="date" value={start} onChange={(e) => setStartDate(e.target.value)} /></label>
           <label>Cierre (opcional)<input id="nl-fin" type="date" value={end} onChange={(e) => setEnd(e.target.value)} /></label>
         </div>
+        <label>
+          Día de pauta (grabación de todo el lote, opcional)
+          <input id="nl-pauta" type="date" value={pauta} onChange={(e) => setPauta(e.target.value)} />
+        </label>
+        <p className="muted small">Todos los videos del lote quedan con esa fecha de grabación y en el calendario se ve una sola pauta. Si un video se graba otro día, cámbiale la fecha en su ficha.</p>
         <label>
           ¿Cuántos videos?
           <input id="nl-cant" type="number" min={0} max={60} value={cantidad} onChange={(e) => setCantidad(Math.max(0, Number(e.target.value)))} />

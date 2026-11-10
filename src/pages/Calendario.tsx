@@ -8,10 +8,31 @@ import { PUBLICACION_INFO, estadoPublicacion, fmtHora, useAhora } from '../lib/p
 import type { Video } from '../lib/types'
 
 type Tipo = 'Grabación' | 'Edición' | 'Entrega' | 'Publicación'
-type Evento = { v: Video; kind: Tipo; label: string; tone: string; hora?: string }
+type Evento = { v: Video; kind: Tipo; label: string; tone: string; hora?: string; grupo?: Video[] }
+
+/** Las grabaciones del mismo lote en el mismo día se muestran como una sola pauta. */
+function agruparPautas(evs: Evento[]): Evento[] {
+  const out: Evento[] = []
+  const porLote = new Map<string, Evento>()
+  for (const e of evs) {
+    const lote = e.v.batch_id
+    if (e.kind !== 'Grabación' || !lote) {
+      out.push(e)
+      continue
+    }
+    const g = porLote.get(lote)
+    if (g) g.grupo!.push(e.v)
+    else {
+      const nuevo = { ...e, grupo: [e.v] }
+      porLote.set(lote, nuevo)
+      out.push(nuevo)
+    }
+  }
+  return out.map((e) => (e.grupo && e.grupo.length < 2 ? { ...e, grupo: undefined } : e))
+}
 
 export default function Calendario() {
-  const { videos, clientById, assigneesOf, profiles } = useStudio()
+  const { videos, clientById, assigneesOf, profiles, batches } = useStudio()
   const [inicio, setInicio] = useState(() => startOfWeek(new Date()))
   const [resp, setResp] = useState('')
   const [tipo, setTipo] = useState('')
@@ -27,7 +48,7 @@ export default function Calendario() {
   }
 
   const eventos = (d: string): Evento[] =>
-    videos
+    agruparPautas(videos
       .filter((v) => !resp || assigneesOf(v.id).some((a) => a.user_id === resp))
       .flatMap((v) => [
         v.record_date === d ? ({ v, kind: 'Grabación', label: 'Grabación', tone: 'rojo' } as Evento) : null,
@@ -35,7 +56,7 @@ export default function Calendario() {
         v.due_date === d ? ({ v, kind: 'Entrega', label: 'Entrega', tone: 'verde' } as Evento) : null,
         publicacion(v, d),
       ])
-      .filter((e): e is Evento => !!e && (!tipo || e.kind === tipo))
+      .filter((e): e is Evento => !!e && (!tipo || e.kind === tipo)))
 
   const fin = dias[6]
   return (
@@ -75,6 +96,38 @@ export default function Calendario() {
               </h3>
               {evs.length === 0 && <p className="muted small">—</p>}
               {evs.map((e) => (
+                e.grupo ? (
+                  <div key={'pauta' + e.v.batch_id} className={`event tone-${e.tone}`}>
+                    <Link to={`/clientes/${e.v.client_id}`} className="event-link">
+                      <span className="event-kind">Pauta · {e.grupo.length} videos</span>
+                      <b>{clientById(e.v.client_id)?.name}</b>
+                      <span>{batches.find((b) => b.id === e.v.batch_id)?.name}</span>
+                    </Link>
+                    <details className="pauta-videos">
+                      <summary>Ver videos</summary>
+                      <ul>
+                        {e.grupo.map((v) => (
+                          <li key={v.id}>
+                            <Link to={`/videos/${v.id}`}>{v.title}</Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                    <a
+                      className="gcal"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Agregar a Google Calendar"
+                      href={gcalLink({
+                        title: `Pauta · ${clientById(e.v.client_id)?.name ?? ''} · ${e.grupo.length} videos`,
+                        date: key,
+                        details: e.grupo.map((v) => `• ${v.title}`).join('\n'),
+                      })}
+                    >
+                      + GCal
+                    </a>
+                  </div>
+                ) : (
                 <div key={e.v.id + e.kind} className={`event tone-${e.tone}`}>
                   <Link to={`/videos/${e.v.id}`} className="event-link">
                     <span className="event-kind">{e.hora ? `${e.label} · ${e.hora}` : e.label}</span>
@@ -99,6 +152,7 @@ export default function Calendario() {
                     </a>
                   </span>
                 </div>
+                )
               ))}
             </section>
           )

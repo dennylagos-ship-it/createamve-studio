@@ -552,3 +552,9 @@ label.check.big { font-size: 16px; }
   .banner.publicar ul { flex-direction: column; }
 }
 .sidebar nav a.active .nav-badge:not(.late) { background: #16120a; color: var(--amarillo); }
+
+/* Día de pauta del lote */
+.link-btn { background: none; border: 0; padding: 0; color: var(--amarillo); font: inherit; font-weight: 700; cursor: pointer; text-decoration: underline; }
+.pauta-videos summary { cursor: pointer; font-size: 12px; font-weight: 700; color: var(--suave); margin-top: 4px; }
+.pauta-videos ul { margin: 4px 0 0; padding-left: 16px; display: grid; gap: 2px; }
+.pauta-videos a { color: var(--texto); font-size: 12.5px; }

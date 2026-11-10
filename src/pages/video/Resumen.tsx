@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth, useStudio, useVideoRows } from '../../lib/data'
 import { setAssignees, updateVideo } from '../../lib/actions'
 import { ASIGNACIONES } from '../../lib/status'
-import { fmtDateTime, pad2 } from '../../lib/format'
+import { fmtDateTime, fmtDay, pad2 } from '../../lib/format'
 import { gcalLink } from '../../lib/gcal'
 import { supabase } from '../../lib/supabase'
 import Publicacion from './Publicacion'
@@ -16,6 +16,7 @@ export default function Resumen({ video }: { video: Video }) {
   const save = (patch: Partial<Video>) => run(updateVideo(video.id, patch))
   const idea = ideas.find((i) => i.id === video.idea_id)
   const clientBatches = batches.filter((b) => b.client_id === video.client_id)
+  const pauta = batches.find((b) => b.id === video.batch_id)?.shoot_date ?? null
   const asg = assigneesOf(video.id)
   const team = profiles.filter((p) => p.active)
 
@@ -78,6 +79,16 @@ export default function Resumen({ video }: { video: Video }) {
                   {label}
                   <input id={`v-${campo}`} type="date" value={fecha ?? ''} onChange={(e) => save({ [campo]: e.target.value || null })} />
                 </label>
+                {campo === 'record_date' && pauta && (
+                  fecha === pauta ? (
+                    <span className="muted small">🎬 Día de pauta del lote</span>
+                  ) : (
+                    <span className="small">
+                      <span className="muted">Distinto a la pauta del lote ({fmtDay(pauta)}). </span>
+                      <button type="button" className="link-btn" onClick={() => save({ record_date: pauta })}>Volver a la pauta</button>
+                    </span>
+                  )
+                )}
                 {fecha && (
                   <a
                     className="gcal"

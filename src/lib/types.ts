@@ -46,6 +46,8 @@ export interface Batch {
   name: string
   start_date: string | null
   end_date: string | null
+  /** Día de pauta: cuando se graban juntos los videos del lote. */
+  shoot_date: string | null
   photos_album_url: string | null
   position: number
   archived: boolean
