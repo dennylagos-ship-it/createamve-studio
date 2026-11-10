@@ -23,7 +23,6 @@
   --r: 16px;
   --r-s: 10px;
   --sidebar: 248px;
-  --tabbar: 64px;
   color-scheme: dark;
 }
 
@@ -187,7 +186,8 @@ label.check.big { font-size: 16px; }
 .banner.warn { background: color-mix(in srgb, var(--naranja) 18%, var(--fondo)); color: var(--naranja); }
 .banner.error { background: color-mix(in srgb, var(--rojo) 18%, var(--fondo)); color: var(--t-rojo); }
 
-.tabbar { display: none; }
+.menu-btn, .menu-close, .drawer-backdrop { display: none; }
+.sidebar-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 
 .page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .page-header .subtitle { color: var(--suave); margin-top: 6px; max-width: 70ch; }
@@ -429,7 +429,24 @@ label.check.big { font-size: 16px; }
 /* ───────── Teléfono ───────── */
 @media (max-width: 860px) {
   .shell { grid-template-columns: 1fr; }
-  .sidebar { display: none; }
+  /* Menú lateral (hamburguesa) en lugar de barra inferior. */
+  .sidebar {
+    position: fixed; z-index: 45; top: 0; bottom: 0; left: 0; height: 100dvh;
+    width: min(300px, 84vw); border-right: 1px solid var(--borde); background: var(--capa);
+    padding: calc(18px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+    transform: translateX(-105%); visibility: hidden; transition: transform .22s ease, visibility 0s linear .22s;
+    box-shadow: 10px 0 40px rgba(0, 0, 0, .5);
+  }
+  .sidebar.open { transform: none; visibility: visible; transition: transform .22s ease; }
+  .sidebar nav a, .sidebar-foot { padding: 13px 14px; font-size: 16px; }
+  .menu-close { display: inline-grid; place-items: center; }
+  .drawer-backdrop { display: block; position: fixed; inset: 0; z-index: 44; background: rgba(0, 0, 0, .55); }
+  body.menu-abierto { overflow: hidden; }
+  .menu-btn {
+    display: grid; place-items: center; width: 42px; height: 42px; margin-left: -6px; flex: none;
+    background: none; border: 0; border-radius: 12px; color: var(--texto); cursor: pointer;
+  }
+  .menu-btn:active { background: var(--capa); }
   .mobile-brand { display: block; }
   .mobile-brand .brand b { font-size: 13px; }
   .mobile-brand .brand i { font-size: 14px; }
@@ -437,7 +454,7 @@ label.check.big { font-size: 16px; }
   .topbar { flex-wrap: wrap; padding: calc(10px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left)); }
   .search { order: 3; flex-basis: 100%; max-width: none; }
   .me-name { display: none; }
-  .content { padding: 18px max(16px, env(safe-area-inset-right)) calc(var(--tabbar) + 32px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); gap: 16px; }
+  .content { padding: 18px max(16px, env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); gap: 16px; }
   .banner { padding-left: 16px; padding-right: 16px; }
   .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .stat-value { font-size: 26px; }
@@ -457,26 +474,8 @@ label.check.big { font-size: 16px; }
   .vh-status { width: 100%; flex-wrap: wrap; gap: 10px; }
   .vh-status .status-select { flex: 1 1 160px; }
   .vh-status .progress { flex: 1 1 100%; width: auto; }
-  /* Avisos por encima de la barra inferior, no encima de ella. */
-  .toasts { bottom: calc(var(--tabbar) + 16px + env(safe-area-inset-bottom)); }
-  /* Con el teclado abierto en iPhone la barra inferior flota sobre el campo: se oculta mientras se escribe. */
-  body:has(input:not([type='checkbox']):not([type='radio']):not([type='color']):focus, textarea:focus) .tabbar { display: none; }
   .banner { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
   .day { min-height: 0; }
-  .tabbar {
-    display: grid; grid-template-columns: repeat(5, 1fr);
-    position: fixed; z-index: 30; left: 0; right: 0; bottom: 0;
-    padding: 6px max(8px, env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
-    background: color-mix(in srgb, var(--capa) 94%, transparent); backdrop-filter: blur(12px); border-top: 1px solid var(--borde);
-  }
-  .tabbar a, .tabbar > button {
-    display: grid; justify-items: center; gap: 2px; padding: 6px 2px; border-radius: 14px;
-    color: var(--suave); font: 700 11px var(--f-body); background: none; border: 0; text-decoration: none !important; cursor: pointer;
-  }
-  .tabbar a.active, .tabbar > button.active { background: var(--amarillo); color: #16120a; }
-  .more-sheet { position: absolute; right: 8px; bottom: calc(100% + 8px); background: var(--capa-2); border: 1px solid var(--borde); border-radius: 16px; padding: 8px; display: grid; min-width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
-  .more-sheet a { display: flex !important; align-items: center; gap: 10px; padding: 12px; color: var(--texto); font-size: 15px !important; justify-items: start; }
-  .more-sheet a.active { background: none; color: var(--amarillo); }
 }
 .banner.demo { background: color-mix(in srgb, var(--amarillo) 14%, var(--fondo)); color: var(--amarillo); text-align: center; padding: 8px 16px; font-size: 13px; }
 .date-row { display: grid; gap: 4px; }

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth, useStudio } from '../lib/data'
 import { Avatar } from './ui'
 
@@ -40,8 +40,22 @@ export default function Layout() {
   const { profile } = useAuth()
   const { online, error } = useStudio()
   const [q, setQ] = useState('')
-  const [more, setMore] = useState(false)
+  const [menu, setMenu] = useState(false)
   const nav = useNavigate()
+  const { pathname } = useLocation()
+
+  // El menú lateral del celular se cierra al cambiar de pantalla o con Escape.
+  useEffect(() => setMenu(false), [pathname])
+  useEffect(() => {
+    if (!menu) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenu(false)
+    document.addEventListener('keydown', onKey)
+    document.body.classList.add('menu-abierto')
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.classList.remove('menu-abierto')
+    }
+  }, [menu])
 
   const search = (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,8 +64,13 @@ export default function Layout() {
 
   return (
     <div className="shell">
-      <aside className="sidebar">
-        <Brand />
+      <aside id="menu-lateral" className={`sidebar${menu ? ' open' : ''}`} aria-label="Menú">
+        <div className="sidebar-head">
+          <Brand />
+          <button className="icon-btn menu-close" onClick={() => setMenu(false)} aria-label="Cerrar menú">
+            <IconClose />
+          </button>
+        </div>
         <nav>
           {NAV.map(({ to, label, icon: I, end }) => (
             <NavLink key={to} to={to} end={end}>
@@ -67,6 +86,9 @@ export default function Layout() {
 
       <div className="main">
         <header className="topbar">
+          <button className="menu-btn" onClick={() => setMenu(true)} aria-label="Abrir menú" aria-expanded={menu} aria-controls="menu-lateral">
+            <IconMenu />
+          </button>
           <span className="mobile-brand">
             <Brand />
           </span>
@@ -94,25 +116,7 @@ export default function Layout() {
         </main>
       </div>
 
-      <nav className="tabbar" aria-label="Navegación principal">
-        {NAV.slice(0, 4).map(({ to, label, icon: I, end }) => (
-          <NavLink key={to} to={to} end={end} onClick={() => setMore(false)}>
-            <I />
-            <span>{label}</span>
-          </NavLink>
-        ))}
-        <button className={more ? 'active' : ''} onClick={() => setMore((m) => !m)} aria-expanded={more}>
-          <IconMore />
-          <span>Más</span>
-        </button>
-        {more && (
-          <div className="more-sheet" onClick={() => setMore(false)}>
-            <NavLink to="/calendario"><IconCal /> Calendario</NavLink>
-            <NavLink to="/equipo"><IconTeam /> Equipo</NavLink>
-            <NavLink to="/ajustes"><IconGear /> Ajustes</NavLink>
-          </div>
-        )}
-      </nav>
+      {menu && <div className="drawer-backdrop" onClick={() => setMenu(false)} aria-hidden="true" />}
     </div>
   )
 }
@@ -133,4 +137,5 @@ function IconCal() { return <Svg d="M4 5h16v15H4zM4 10h16M9 3v4M15 3v4" /> }
 function IconTeam() { return <Svg d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /> }
 function IconGear() { return <Svg d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 14.9H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.9-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1" /> }
 function IconSearch() { return <Svg d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14M21 21l-4.3-4.3" /> }
-function IconMore() { return <Svg d="M5 12h.01M12 12h.01M19 12h.01" /> }
+function IconMenu() { return <Svg d="M4 6h16M4 12h16M4 18h16" /> }
+function IconClose() { return <Svg d="M6 6l12 12M18 6 6 18" /> }
