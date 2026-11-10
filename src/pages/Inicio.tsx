@@ -3,6 +3,7 @@ import { useAuth, useStudio } from '../lib/data'
 import { PENDIENTE_POR_ROL, estadoInfo } from '../lib/status'
 import { addDays, fmtDay, parseDay, today, toDay } from '../lib/format'
 import { Empty, VideoCard } from '../components/ui'
+import { faltaParaPublicar, fmtPublicacion, usePublicacionesPendientes } from '../lib/publicacion'
 import type { EstadoVideo, Video } from '../lib/types'
 
 const COLUMNAS: { label: string; estados: EstadoVideo[]; tone: string }[] = [
@@ -36,6 +37,7 @@ export default function Inicio() {
     .sort((a, b) => a.d.localeCompare(b.d))
     .slice(0, 8)
 
+  const porPublicar = usePublicacionesPendientes()
   const count = (estados: EstadoVideo[]) => activos.filter((v) => estados.includes(v.status)).length
 
   return (
@@ -87,6 +89,36 @@ export default function Inicio() {
           )}
         </section>
       </div>
+
+      {porPublicar.length > 0 && (
+        <section className="panel por-publicar">
+          <header className="panel-head">
+            <h2>Por publicar ({porPublicar.length})</h2>
+            <Link to="/calendario" className="see-all">Calendario →</Link>
+          </header>
+          <ul className="agenda">
+            {porPublicar.slice(0, 8).map(({ video: v, estado }) => {
+              const falta = faltaParaPublicar(v)
+              return (
+                <li key={v.id}>
+                  <Link to={`/videos/${v.id}`}>
+                    <span className={`agenda-date${estado === 'atrasada' ? ' late' : estado === 'hoy' ? ' today' : ''}`}>
+                      {v.publish_at ? fmtPublicacion(v.publish_at) : 'Sin fecha'}
+                    </span>
+                    <span className="agenda-title">
+                      {clients.find((c) => c.id === v.client_id)?.name} · {v.title}
+                    </span>
+                    <span className={`pill tone-${estado === 'atrasada' ? 'rojo' : falta.listo ? 'verde' : 'naranja'}`}>
+                      {estado === 'atrasada' ? `Atrasada${falta.listo ? '' : ` · ${falta.texto}`}` : falta.texto}
+                    </span>
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+          {porPublicar.length > 8 && <p className="muted small">y {porPublicar.length - 8} más.</p>}
+        </section>
+      )}
 
       <section className="panel">
         <header className="panel-head">

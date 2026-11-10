@@ -9,7 +9,7 @@ export function nextNumber(videos: Video[], clientId: string, batchId: string | 
 
 export async function createVideos(
   videos: Video[],
-  opts: { clientId: string; batchId: string | null; titles: string[]; ideaId?: string | null; brief?: string },
+  opts: { clientId: string; batchId: string | null; titles: string[]; ideaId?: string | null; brief?: string; publishByUs?: boolean; extras?: Partial<Video>[] },
 ) {
   // Consulta el último número en la base de datos, por si la lista local aún no se actualizó.
   let q = supabase.from('videos').select('number').eq('client_id', opts.clientId).order('number', { ascending: false }).limit(1)
@@ -22,7 +22,7 @@ export async function createVideos(
     recordDate = ((b as { shoot_date?: string | null } | null)?.shoot_date) ?? null
   }
   let n = Math.max(nextNumber(videos, opts.clientId, opts.batchId), ((last?.[0]?.number as number | undefined) ?? 0) + 1)
-  const rows = opts.titles.map((t) => ({
+  const rows = opts.titles.map((t, i) => ({
     client_id: opts.clientId,
     batch_id: opts.batchId,
     idea_id: opts.ideaId ?? null,
@@ -31,6 +31,8 @@ export async function createVideos(
     title: t.trim() || 'Video sin título',
     status: 'por_grabar' as EstadoVideo,
     ...(recordDate ? { record_date: recordDate } : {}),
+    ...(opts.publishByUs ? { publish_by_us: true } : {}),
+    ...(opts.extras?.[i] ?? {}),
   }))
   return supabase.from('videos').insert(rows).select('*')
 }

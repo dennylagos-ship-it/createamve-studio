@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ESTADOS, estadoInfo, progreso } from '../lib/status'
 import type { EstadoVideo, Profile, Video } from '../lib/types'
-import { fmtDay, initials, pad2 } from '../lib/format'
+import { fmtDay, initials, pad2, toDay } from '../lib/format'
 import { useStudio } from '../lib/data'
 
 /* ───────── Avisos ───────── */
@@ -156,6 +156,11 @@ export function VideoCard({ video, showClient = true, draggable }: { video: Vide
         <span className="vc-foot">
           <StatusPill status={video.status} />
           {nextDate && <span className="vc-date">{fmtDay(nextDate)}</span>}
+          {video.publish_by_us && !video.published_at && (
+            <span className={`vc-pub${video.publish_at && new Date(video.publish_at) < new Date() ? ' late' : ''}`} title="Nosotros lo publicamos">
+              📣 {video.publish_at ? fmtDay(toDay(new Date(video.publish_at))) : 'Sin fecha'}
+            </span>
+          )}
           <Progress value={progreso(video.status)} />
         </span>
       </span>

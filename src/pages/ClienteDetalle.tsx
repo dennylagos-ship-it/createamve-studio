@@ -4,7 +4,7 @@ import { useAuth, useStudio } from '../lib/data'
 import { supabase } from '../lib/supabase'
 import { createVideos, setShootDate } from '../lib/actions'
 import { progreso } from '../lib/status'
-import { addDays, fmtDay, isGooglePhotos, isUrl, parseDay, startOfWeek, toDay, nombreMes } from '../lib/format'
+import { addDays, fmtDay, isGooglePhotos, isUrl, parseDay, startOfWeek, toDay, nombreMes, pad2 } from '../lib/format'
 import { AutoField, ConfirmButton, Empty, Modal, PageHeader, Progress, SelectorColor, VideoCard, useRun } from '../components/ui'
 import { ClientBadge } from './Inicio'
 import { IdeaList } from './Ideas'
@@ -212,13 +212,15 @@ export function QuickAddVideo({ clientId, batchId, label = '+ Agregar video' }: 
   const run = useRun()
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
+  // Si el lote ya tiene videos que publicamos nosotros, el nuevo viene marcado igual.
+  const [publica, setPublica] = useState(() => videos.some((v) => v.client_id === clientId && v.batch_id === batchId && batchId && v.publish_by_us))
   if (!open) return <button className="btn btn-dashed" onClick={() => setOpen(true)}>{label}</button>
   return (
     <form
       className="quick-add"
       onSubmit={async (e) => {
         e.preventDefault()
-        if (await run(createVideos(videos, { clientId, batchId, titles: [title] }), 'Video agregado')) {
+        if (await run(createVideos(videos, { clientId, batchId, titles: [title], publishByUs: publica }), 'Video agregado')) {
           setTitle('')
         }
       }}
@@ -226,6 +228,10 @@ export function QuickAddVideo({ clientId, batchId, label = '+ Agregar video' }: 
       <input id={`qa-${batchId ?? clientId}`} autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Título tentativo del video" />
       <button className="btn btn-primary">Agregar</button>
       <button type="button" className="btn btn-ghost" onClick={() => setOpen(false)}>Listo</button>
+      <label className="check qa-publica">
+        <input id={`qa-publica-${batchId ?? clientId}`} type="checkbox" checked={!!publica} onChange={(e) => setPublica(e.target.checked)} />
+        Nosotros lo publicamos
+      </label>
     </form>
   )
 }
@@ -239,12 +245,15 @@ function NuevoLote({ clientId, onClose }: { clientId: string; onClose: () => voi
   const [start, setStart] = useState(toDay(lunes))
   const [end, setEnd] = useState(toDay(domingo))
   const [pauta, setPauta] = useState('')
-  const [cantidad, setCantidad] = useState(3)
-  const [titulos, setTitulos] = useState('')
+  type Fila = { titulo: string; publica: boolean; fecha: string }
+  const filaVacia = (): Fila => ({ titulo: '', publica: false, fecha: '' })
+  const [filas, setFilas] = useState<Fila[]>(() => Array.from({ length: 3 }, filaVacia))
   const [busy, setBusy] = useState(false)
-
-  const lines = titulos.split('\n').map((t) => t.trim()).filter(Boolean)
-  const total = Math.max(cantidad, lines.length)
+  const total = filas.length
+  const setCantidad = (n: number) =>
+    setFilas((f) => (n > f.length ? [...f, ...Array.from({ length: n - f.length }, filaVacia)] : f.slice(0, n)))
+  const setFila = (i: number, patch: Partial<Fila>) => setFilas((f) => f.map((x, j) => (j === i ? { ...x, ...patch } : x)))
+  const todasPublica = filas.length > 0 && filas.every((f) => f.publica)
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -254,8 +263,12 @@ function NuevoLote({ clientId, onClose }: { clientId: string; onClose: () => voi
     )
     if (b && b !== true) {
       const batch = b as Batch
-      const titles = Array.from({ length: total }, (_, i) => lines[i] ?? '')
-      if (total > 0) await run(createVideos(videos, { clientId, batchId: batch.id, titles }))
+      const titles = filas.map((f) => f.titulo)
+      const extras = filas.map((f) => {
+        const d = f.fecha ? new Date(f.fecha) : null
+        return f.publica ? { publish_by_us: true, publish_at: d && !Number.isNaN(d.getTime()) ? d.toISOString() : null } : {}
+      })
+      if (total > 0) await run(createVideos(videos, { clientId, batchId: batch.id, titles, extras }))
       onClose()
     }
     setBusy(false)
@@ -286,12 +299,36 @@ function NuevoLote({ clientId, onClose }: { clientId: string; onClose: () => voi
         <p className="muted small">Todos los videos del lote quedan con esa fecha de grabación y en el calendario se ve una sola pauta. Si un video se graba otro día, cámbiale la fecha en su ficha.</p>
         <label>
           ¿Cuántos videos?
-          <input id="nl-cant" type="number" min={0} max={60} value={cantidad} onChange={(e) => setCantidad(Math.max(0, Number(e.target.value)))} />
+          <input id="nl-cant" type="number" min={0} max={60} value={total} onChange={(e) => setCantidad(Math.min(60, Math.max(0, Number(e.target.value) || 0)))} />
         </label>
-        <label>
-          Títulos tentativos (uno por línea, opcional)
-          <textarea id="nl-titulos" rows={4} value={titulos} onChange={(e) => setTitulos(e.target.value)} placeholder={'Kit de labios Aria\nBrochas Aria\nDelineadores'} />
-        </label>
+        {total > 0 && (
+          <div className="nl-videos">
+            <div className="row between">
+              <span className="nl-videos-title">Videos del lote</span>
+              <label className="check small">
+                <input id="nl-publica-todos" type="checkbox" checked={todasPublica} onChange={(e) => setFilas((f) => f.map((x) => ({ ...x, publica: e.target.checked })))} />
+                Publicamos todos
+              </label>
+            </div>
+            {filas.map((f, i) => (
+              <div key={i} className={`nl-video${f.publica ? ' on' : ''}`}>
+                <span className="nl-num">{pad2(i + 1)}</span>
+                <input id={`nl-titulo-${i}`} value={f.titulo} onChange={(e) => setFila(i, { titulo: e.target.value })} placeholder="Título tentativo (opcional)" aria-label={`Título del video ${i + 1}`} />
+                <label className="check">
+                  <input id={`nl-pub-${i}`} type="checkbox" checked={f.publica} onChange={(e) => setFila(i, { publica: e.target.checked })} />
+                  Nosotros lo publicamos
+                </label>
+                {f.publica && (
+                  <label className="nl-fecha">
+                    Fecha y hora de publicación (opcional)
+                    <input id={`nl-pubfecha-${i}`} type="datetime-local" value={f.fecha} onChange={(e) => setFila(i, { fecha: e.target.value })} />
+                  </label>
+                )}
+              </div>
+            ))}
+            <p className="muted small">Los que marques quedan como pendientes por publicar desde ya. La app avisa cuando se acerque la fecha y te dice si al video todavía le falta grabarse o editarse.</p>
+          </div>
+        )}
         <p className="muted small">Se crearán {total} ficha{total === 1 ? '' : 's'} de video. Luego puedes agregar más sin límite.</p>
         <div className="form-actions">
           <button type="button" className="btn btn-ghost" onClick={onClose}>Cancelar</button>

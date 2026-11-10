@@ -64,21 +64,59 @@ export function useAhora(cadaMs = 30_000) {
   return ahora
 }
 
-export interface AvisoPublicacion {
-  video: Video
-  estado: 'hoy' | 'atrasada'
+/** Qué le falta al video para poder publicarse, según su fase de producción. */
+export function faltaParaPublicar(v: Video): { texto: string; listo: boolean } {
+  switch (v.status) {
+    case 'idea':
+    case 'por_grabar':
+      return { texto: 'Falta grabar', listo: false }
+    case 'grabado':
+    case 'en_edicion':
+      return { texto: 'Falta editar', listo: false }
+    case 'en_correcciones':
+      return { texto: 'Faltan correcciones', listo: false }
+    case 'editado':
+      return { texto: 'Falta revisión', listo: false }
+    default:
+      return { texto: 'Listo para publicar', listo: true }
+  }
 }
 
-/** Publicaciones que necesitan atención ahora: las de hoy y las atrasadas (primero las atrasadas). */
-export function useAvisosPublicacion() {
+/** Días de anticipación con los que avisa si el video aún no está listo. */
+export const DIAS_AVISO = 3
+
+export interface AvisoPublicacion {
+  video: Video
+  /** hoy / atrasada: toca publicar. riesgo: se publica pronto y el video aún no está listo. */
+  estado: 'hoy' | 'atrasada' | 'riesgo'
+}
+
+/** Todas las publicaciones que la agencia tiene pendientes (para la lista de Inicio). */
+export function usePublicacionesPendientes() {
   const { videos, clients } = useStudio()
   const ahora = useAhora()
   return useMemo(() => {
     const archivado = new Set(clients.filter((c) => c.archived).map((c) => c.id))
     return videos
-      .filter((v) => !archivado.has(v.client_id))
-      .map((v) => ({ video: v, estado: estadoPublicacion(v, ahora) }))
-      .filter((a): a is AvisoPublicacion => a.estado === 'hoy' || a.estado === 'atrasada')
-      .sort((a, b) => a.video.publish_at!.localeCompare(b.video.publish_at!))
+      .filter((v) => v.publish_by_us && !v.published_at && !archivado.has(v.client_id))
+      .map((v) => ({ video: v, estado: estadoPublicacion(v, ahora)! }))
+      .sort((a, b) => (a.video.publish_at ?? '9999').localeCompare(b.video.publish_at ?? '9999'))
   }, [videos, clients, ahora])
+}
+
+/**
+ * Avisos que salen en toda la app: las publicaciones de hoy, las atrasadas y las
+ * que se publican en los próximos días con el video todavía sin terminar.
+ */
+export function useAvisosPublicacion(): AvisoPublicacion[] {
+  const pendientes = usePublicacionesPendientes()
+  return useMemo(() => {
+    const limite = Date.now() + DIAS_AVISO * 86_400_000
+    return pendientes.flatMap(({ video, estado }): AvisoPublicacion[] => {
+      if (estado === 'hoy' || estado === 'atrasada') return [{ video, estado }]
+      if (estado === 'programada' && new Date(video.publish_at!).getTime() <= limite && !faltaParaPublicar(video).listo)
+        return [{ video, estado: 'riesgo' }]
+      return []
+    })
+  }, [pendientes])
 }
