@@ -27,7 +27,7 @@ export function Credito() {
 export function Brand() {
   return (
     <span className="brand">
-      <img src="/logo-negativo.webp" alt="" width={40} height={40} />
+      <img src="/logo-negativo.webp" alt="" width={48} height={48} />
       <span>
         <b>CREATEAMVE</b>
         <i>Studio</i>

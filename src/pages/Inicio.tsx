@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth, useStudio } from '../lib/data'
 import { PENDIENTE_POR_ROL, estadoInfo } from '../lib/status'
 import { addDays, fmtDay, parseDay, today, toDay } from '../lib/format'
-import { Empty, PageHeader, VideoCard } from '../components/ui'
+import { Empty, VideoCard } from '../components/ui'
 import type { EstadoVideo, Video } from '../lib/types'
 
 const COLUMNAS: { label: string; estados: EstadoVideo[]; tone: string }[] = [
@@ -39,7 +39,6 @@ export default function Inicio() {
 
   return (
     <>
-      <PageHeader title={`Hola, ${profile?.full_name.split(' ')[0] ?? ''}`} subtitle="Centro de producción audiovisual" />
 
       <section className="stats">
         <Stat label="Videos en producción" value={activos.length} tone="violeta" to="/produccion" />
