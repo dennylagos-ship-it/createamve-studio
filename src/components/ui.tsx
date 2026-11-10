@@ -306,3 +306,43 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
 export function Spinner() {
   return <div className="spinner" aria-label="Cargando" />
 }
+
+/* ───────── Selector de color ───────── */
+
+/* Paleta pensada para el fondo oscuro de la app: todos los tonos se leen bien
+   como borde y texto de la insignia del cliente. Los 8 primeros son los originales. */
+export const COLORES = [
+  '#FFC400', '#FF9A00', '#F2202B', '#B46CFF', '#3D8BFF', '#22C6C6', '#2BD47D', '#FF6FB5',
+  '#FFE066', '#C6F432', '#7BE495', '#0FA37F', '#00B8FF', '#8FA8FF', '#A08CFF', '#E040FB',
+  '#FF4D8D', '#FF6B4A', '#FF8A3D', '#D4A017', '#C68B59', '#F4C7A1', '#9AA0A6', '#FFFFFF',
+]
+
+export function SelectorColor({ legend, value, onChange }: { legend: string; value: string; onChange: (color: string) => void }) {
+  const libre = !COLORES.includes(value.toUpperCase())
+  const input = useRef<HTMLInputElement>(null)
+  const cb = useRef(onChange)
+  cb.current = onChange
+
+  /* El evento nativo "change" solo se dispara al cerrar el selector del sistema,
+     así no guardamos en cada movimiento mientras se arrastra. */
+  useEffect(() => {
+    const el = input.current
+    if (!el) return
+    const h = () => cb.current(el.value.toUpperCase())
+    el.addEventListener('change', h)
+    return () => el.removeEventListener('change', h)
+  }, [])
+
+  return (
+    <fieldset className="colors">
+      <legend>{legend}</legend>
+      {COLORES.map((c) => (
+        <button type="button" key={c} className={c === value.toUpperCase() ? 'on' : ''} style={{ background: c }} onClick={() => onChange(c)} aria-label={`Color ${c}`} title={c} />
+      ))}
+      <label className={`color-libre${libre ? ' on' : ''}`} title="Elegir cualquier color" style={libre ? { background: value } : undefined}>
+        <input ref={input} type="color" defaultValue={libre ? value : '#FFC400'} aria-label="Elegir cualquier color" />
+        {!libre && <span aria-hidden="true">+</span>}
+      </label>
+    </fieldset>
+  )
+}

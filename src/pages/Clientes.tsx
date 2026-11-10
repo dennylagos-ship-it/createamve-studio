@@ -2,10 +2,9 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useStudio } from '../lib/data'
 import { supabase } from '../lib/supabase'
-import { Empty, Modal, PageHeader, useRun } from '../components/ui'
+import { COLORES, Empty, Modal, PageHeader, SelectorColor, useRun } from '../components/ui'
 import { ClientBadge } from './Inicio'
 
-export const COLORES = ['#FFC400', '#FF9A00', '#F2202B', '#B46CFF', '#3D8BFF', '#22C6C6', '#2BD47D', '#FF6FB5']
 
 export default function Clientes() {
   const { clients, videos, batches } = useStudio()
@@ -85,12 +84,7 @@ function NuevoCliente({ onClose }: { onClose: () => void }) {
           Descripción
           <textarea id="nc-desc" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Qué vende, a quién le habla…" />
         </label>
-        <fieldset className="colors">
-          <legend>Color de identificación</legend>
-          {COLORES.map((c) => (
-            <button type="button" key={c} className={c === color ? 'on' : ''} style={{ background: c }} onClick={() => setColor(c)} aria-label={`Color ${c}`} />
-          ))}
-        </fieldset>
+        <SelectorColor legend="Color de identificación" value={color} onChange={setColor} />
         <div className="form-actions">
           <button type="button" className="btn btn-ghost" onClick={onClose}>Cancelar</button>
           <button className="btn btn-primary" disabled={busy || !name.trim()}>Crear cliente</button>
