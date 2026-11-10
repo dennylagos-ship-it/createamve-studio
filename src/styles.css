@@ -307,8 +307,12 @@ label.check.big { font-size: 16px; }
 .board-col.over { background: color-mix(in srgb, var(--tone) 18%, var(--fondo)); }
 .board-col h3 { color: var(--tone); font-size: 14px; }
 .board-col h3 span { color: var(--suave); }
-.board-item { display: grid; gap: 6px; }
-.board-item .status-select { justify-self: start; }
+.board-item { display: grid; gap: 0; background: var(--capa-2); border: 1px solid var(--borde); border-radius: 14px; overflow: hidden; }
+.board-item:hover { border-color: var(--amarillo); }
+/* En el tablero la lista de estado ya dice el estado: la etiqueta de la tarjeta sobra. */
+.board-item .video-card { border: 0; border-radius: 0; background: none; padding-bottom: 6px; }
+.board-item .vc-foot .pill { display: none; }
+.board-item .status-select { justify-self: start; margin: 0 12px 12px 72px; }
 .table-wrap { overflow-x: auto; border: 1px solid var(--borde); border-radius: var(--r); }
 .table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .table th { text-align: left; color: var(--suave); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; padding: 12px; background: var(--capa); }
@@ -426,6 +430,25 @@ label.check.big { font-size: 16px; }
   .week { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 }
 
+/* ───────── Tarjetas compactas en tablet y teléfono ───────── */
+@media (max-width: 1100px) {
+  .video-card { gap: 10px; padding: 10px; border-radius: 12px; }
+  .vc-thumb { width: 36px; height: 36px; border-radius: 10px; font-size: 12px; }
+  .vc-body { gap: 2px; }
+  .vc-client { font-size: 11.5px; }
+  .vc-title { font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .vc-num { font-size: 11px; }
+  .vc-meta { flex-wrap: nowrap; overflow: hidden; white-space: nowrap; font-size: 12px; }
+  .vc-meta > span { overflow: hidden; text-overflow: ellipsis; }
+  .vc-foot { margin-top: 4px; }
+  .vc-foot .pill { padding: 2px 8px; font-size: 11px; }
+  .card-list { gap: 8px; }
+  .card-list.cols { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .board { grid-auto-columns: minmax(230px, 1fr); }
+  .board-col { gap: 8px; padding: 10px; }
+  .board-item .status-select { margin: 0 10px 10px 56px; }
+}
+
 /* ───────── Teléfono ───────── */
 @media (max-width: 860px) {
   .shell { grid-template-columns: 1fr; }
@@ -462,7 +485,14 @@ label.check.big { font-size: 16px; }
   .mini-board { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 82%; overflow-x: auto; }
   .agenda a { grid-template-columns: 70px 1fr auto; }
   .agenda-kind { display: none; }
-  .board { grid-auto-columns: 86%; scroll-snap-type: x mandatory; }
+  .board { grid-auto-columns: min(86%, 280px); scroll-snap-type: x mandatory; }
+  /* Filtros en dos columnas para que el tablero quede a la vista. */
+  .filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .filters input[type='search'], .filters .check { grid-column: 1 / -1; }
+  .filters select { width: 100%; min-width: 0; }
+  .filters select:last-of-type { grid-column: 1 / -1; }
+  .filters .date-filter { display: grid; gap: 2px; font-size: 12px; }
+  .filters .date-filter input { width: 100%; }
   .board-col { scroll-snap-align: start; }
   .panel { padding: 14px; }
   .asset { flex-wrap: wrap; }
