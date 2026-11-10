@@ -123,8 +123,10 @@ export function VideoCard({ video, showClient = true, draggable }: { video: Vide
   const client = clientById(video.client_id)
   const batch = batches.find((b) => b.id === video.batch_id)
   const asg = assigneesOf(video.id)
-  const rec = asg.filter((a) => a.kind === 'grabacion').map((a) => profileById(a.user_id)?.full_name).filter(Boolean)
-  const edi = asg.filter((a) => a.kind === 'edicion').map((a) => profileById(a.user_id)?.full_name).filter(Boolean)
+  // En la tarjeta basta el primer nombre; el nombre completo queda en el detalle del video.
+  const nombre = (id: string) => profileById(id)?.full_name?.trim().split(/\s+/)[0]
+  const rec = asg.filter((a) => a.kind === 'grabacion').map((a) => nombre(a.user_id)).filter(Boolean)
+  const edi = asg.filter((a) => a.kind === 'edicion').map((a) => nombre(a.user_id)).filter(Boolean)
   const nextDate = video.status === 'por_grabar' || video.status === 'idea' ? video.record_date : video.status === 'entregado' ? null : video.due_date
 
   return (
