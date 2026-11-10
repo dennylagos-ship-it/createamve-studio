@@ -29,9 +29,9 @@ export function seed() {
   ]
 
   const batches = [
-    { id: 'b-luna', client_id: 'c-luna', name: `Semana del ${addDays(lunes, 0).getDate()} al ${addDays(lunes, 6).getDate()}`, start_date: d(0), end_date: d(6), position: 0, archived: false, created_by: 'u-freddy', created_at: t0 },
-    { id: 'b-tinoco', client_id: 'c-tinoco', name: 'Lote educativo', start_date: d(0), end_date: d(13), position: 0, archived: false, created_by: 'u-freddy', created_at: t0 },
-    { id: 'b-estilos', client_id: 'c-estilos', name: 'Colección de temporada', start_date: d(-3), end_date: d(4), position: 0, archived: false, created_by: 'u-freddy', created_at: t0 },
+    { id: 'b-luna', client_id: 'c-luna', name: `Semana del ${addDays(lunes, 0).getDate()} al ${addDays(lunes, 6).getDate()}`, start_date: d(0), end_date: d(6), photos_album_url: 'https://photos.app.goo.gl/ejemplo-album-luna', position: 0, archived: false, created_by: 'u-freddy', created_at: t0 },
+    { id: 'b-tinoco', client_id: 'c-tinoco', name: 'Lote educativo', start_date: d(0), end_date: d(13), photos_album_url: null, position: 0, archived: false, created_by: 'u-freddy', created_at: t0 },
+    { id: 'b-estilos', client_id: 'c-estilos', name: 'Colección de temporada', start_date: d(-3), end_date: d(4), photos_album_url: null, position: 0, archived: false, created_by: 'u-freddy', created_at: t0 },
   ]
 
   const v = (id: string, client_id: string, batch_id: string, number: number, title: string, status: string, extra: Record<string, unknown> = {}) => ({

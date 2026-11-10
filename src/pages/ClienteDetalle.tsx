@@ -4,7 +4,7 @@ import { useAuth, useStudio } from '../lib/data'
 import { supabase } from '../lib/supabase'
 import { createVideos } from '../lib/actions'
 import { progreso } from '../lib/status'
-import { addDays, fmtDay, parseDay, startOfWeek, toDay, nombreMes } from '../lib/format'
+import { addDays, fmtDay, isGooglePhotos, isUrl, parseDay, startOfWeek, toDay, nombreMes } from '../lib/format'
 import { AutoField, ConfirmButton, Empty, Modal, PageHeader, Progress, SelectorColor, VideoCard, useRun } from '../components/ui'
 import { ClientBadge } from './Inicio'
 import { IdeaList } from './Ideas'
@@ -133,6 +133,9 @@ function BatchBlock({ batch, clientId }: { batch: Batch | null; clientId?: strin
             {batch?.start_date && `${fmtDay(batch.start_date)}${batch.end_date ? ` → ${fmtDay(batch.end_date)}` : ''} · `}
             {list.length} video{list.length === 1 ? '' : 's'} · {entregados} entregado{entregados === 1 ? '' : 's'}
           </p>
+          {batch?.photos_album_url && (
+            <a className="album-link small" href={batch.photos_album_url} target="_blank" rel="noopener noreferrer">📷 Álbum de Google Fotos</a>
+          )}
         </div>
         <div className="batch-progress">
           <Progress value={avg} /> <span>{avg}%</span>
@@ -151,6 +154,7 @@ function BatchBlock({ batch, clientId }: { batch: Batch | null; clientId?: strin
               <label>Inicio<input id="lote-ini" type="date" value={batch.start_date ?? ''} onChange={(e) => run(supabase.from('batches').update({ start_date: e.target.value || null }).eq('id', batch.id))} /></label>
               <label>Cierre<input id="lote-fin" type="date" value={batch.end_date ?? ''} onChange={(e) => run(supabase.from('batches').update({ end_date: e.target.value || null }).eq('id', batch.id))} /></label>
             </div>
+            <AlbumLote batch={batch} />
             <div className="danger-zone">
               <button className="btn btn-ghost" onClick={() => run(supabase.from('batches').update({ archived: !batch.archived }).eq('id', batch.id), batch.archived ? 'Lote reactivado' : 'Lote movido al historial').then(() => setEditing(false))}>
                 {batch.archived ? 'Reactivar lote' : 'Mover al historial'}
@@ -163,6 +167,32 @@ function BatchBlock({ batch, clientId }: { batch: Batch | null; clientId?: strin
         </Modal>
       )}
     </section>
+  )
+}
+
+function AlbumLote({ batch }: { batch: Batch }) {
+  const run = useRun()
+  const [url, setUrl] = useState(batch.photos_album_url ?? '')
+  const v = url.trim()
+  const aviso = !v ? '' : !isUrl(v) ? 'Esto no parece un enlace.' : !isGooglePhotos(v) ? 'No es un enlace de Google Fotos. Se guardará igual.' : ''
+  return (
+    <label>
+      Álbum compartido de Google Fotos
+      <AutoField
+        id="lote-album"
+        value={batch.photos_album_url ?? ''}
+        placeholder="https://photos.app.goo.gl/…"
+        onSave={(val) => {
+          setUrl(val)
+          const limpio = val.trim()
+          if (limpio && !isUrl(limpio)) return
+          return run(supabase.from('batches').update({ photos_album_url: limpio || null }).eq('id', batch.id), limpio ? 'Álbum guardado' : 'Álbum quitado')
+        }}
+      />
+      <span className={`small ${aviso ? 'form-error' : 'muted'}`}>
+        {aviso || 'En Google Fotos: abre el álbum → Compartir → Crear enlace. Todos los videos del lote lo mostrarán en "Material bruto".'}
+      </span>
+    </label>
   )
 }
 

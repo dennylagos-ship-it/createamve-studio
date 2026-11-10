@@ -33,7 +33,8 @@ export default function Material({ video }: { video: Video }) {
   const [linking, setLinking] = useState(false)
   const [abrir, setAbrir] = useState<Row | null>(null)
   const [shared, setShared] = useState<Record<string, string[]>>({})
-  const { videos } = useStudio()
+  const { videos, batches } = useStudio()
+  const lote = batches.find((b) => b.id === video.batch_id)
 
   // ¿Qué tomas también están vinculadas a otros videos? (muchos-a-muchos)
   const assetIds = rows.map((r) => r.asset_id).join(',')
@@ -86,6 +87,21 @@ export default function Material({ video }: { video: Video }) {
           <button className="btn btn-primary" onClick={() => setAdding(true)}>+ Agregar tomas</button>
         </div>
       </header>
+
+      {lote?.photos_album_url ? (
+        <div className="album-banner">
+          <span aria-hidden="true">📷</span>
+          <div className="grow">
+            <b>Álbum del lote "{lote.name}"</b>
+            <p className="muted small">Todas las tomas del lote en Google Fotos. Se abre si tu cuenta tiene acceso al álbum.</p>
+          </div>
+          <a className="btn btn-primary" href={lote.photos_album_url} target="_blank" rel="noopener noreferrer">Abrir álbum</a>
+        </div>
+      ) : lote ? (
+        <p className="muted small">
+          Consejo: pega el álbum compartido de Google Fotos en el lote "{lote.name}" (ficha del cliente → ✎ del lote) y aparecerá aquí en todos sus videos.
+        </p>
+      ) : null}
 
       {rows.length > 0 && (
         <div className="segmented wrap">

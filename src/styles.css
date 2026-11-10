@@ -346,6 +346,12 @@ label.check.big { font-size: 16px; }
 .perms li { line-height: 1.6; }
 
 /* Material bruto */
+.album-link { display: inline-block; margin-top: 4px; color: var(--amarillo); font-weight: 700; text-decoration: none; }
+.album-link:hover { text-decoration: underline; }
+.album-banner { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 14px; margin-bottom: 12px; border: 1px solid var(--borde); border-radius: 14px; background: var(--capa-2); }
+.album-banner > span { font-size: 22px; }
+.album-banner .grow { flex: 1 1 200px; }
+.album-banner p { margin: 2px 0 0; }
 .asset { display: flex; gap: 14px; align-items: flex-start; padding: 12px; background: var(--capa-2); border: 1px solid var(--borde); border-radius: 14px; }
 .asset.broken { border-color: color-mix(in srgb, var(--t-rojo) 55%, var(--borde)); }
 .asset-thumb { width: 64px; height: 64px; border-radius: 12px; background: var(--capa-3); display: grid; place-items: center; align-content: center; flex: none; font-size: 22px; }
