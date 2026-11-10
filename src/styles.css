@@ -525,3 +525,30 @@ label.check.big { font-size: 16px; }
 .credito b { color: var(--texto); font-weight: 700; }
 .sidebar { overflow-y: auto; }
 .sidebar .credito { margin: -12px 0 0; padding: 0 6px; }
+
+/* Publicación programada */
+.publicacion { display: grid; gap: 10px; }
+.publicacion > .pill { justify-self: start; }
+.publicacion label:not(.check) { display: grid; gap: 4px; font-weight: 700; font-size: 14px; }
+.publicar-form { display: grid; gap: 8px; }
+.publicar-form .btn { justify-self: start; }
+.publicado { display: grid; gap: 8px; justify-items: start; }
+.error-text { color: var(--t-rojo); font-weight: 600; }
+.banner.publicar { background: color-mix(in srgb, var(--amarillo) 14%, var(--fondo)); color: var(--texto); display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+.banner.publicar.late { background: color-mix(in srgb, var(--rojo) 16%, var(--fondo)); }
+.banner.publicar .publicar-titulo { font-weight: 800; color: var(--amarillo); }
+.banner.publicar.late .publicar-titulo { color: var(--t-rojo); }
+.banner.publicar ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.banner.publicar a { color: var(--texto); text-decoration: none; }
+.banner.publicar a:hover { text-decoration: underline; }
+.banner.publicar b { color: var(--amarillo); }
+.banner.publicar b.late { color: var(--t-rojo); }
+.nav-badge { margin-left: auto; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; display: inline-grid; place-items: center; font-size: 12px; font-weight: 800; background: var(--amarillo); color: #16120a; }
+.nav-badge.late { background: var(--rojo); color: #fff; }
+.menu-btn { position: relative; }
+.menu-dot { position: absolute; top: 7px; right: 7px; width: 10px; height: 10px; border-radius: 50%; background: var(--amarillo); box-shadow: 0 0 0 2px var(--fondo); }
+.menu-dot.late { background: var(--rojo); }
+@media (max-width: 900px) {
+  .banner.publicar ul { flex-direction: column; }
+}
+.sidebar nav a.active .nav-badge:not(.late) { background: #16120a; color: var(--amarillo); }

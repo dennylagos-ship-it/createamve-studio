@@ -12,6 +12,12 @@ export function seed() {
     return x.toISOString()
   }
   const t0 = ts(-7)
+  /** Fecha y hora relativa a HOY (para publicaciones de ejemplo). */
+  const hora = (n: number, h: number, m = 0) => {
+    const x = addDays(new Date(), n)
+    x.setHours(h, m, 0, 0)
+    return x.toISOString()
+  }
 
   const profiles = [
     { id: 'u-freddy', full_name: 'Freddy', email: 'freddy@createamve.demo', role: 'admin', active: true, color: '#FFC400', created_at: t0 },
@@ -36,7 +42,7 @@ export function seed() {
 
   const v = (id: string, client_id: string, batch_id: string, number: number, title: string, status: string, extra: Record<string, unknown> = {}) => ({
     id, client_id, batch_id, idea_id: null, number, title, status, brief: '', script: '', shot_list: '', notes: '',
-    record_date: null, edit_date: null, due_date: null, final_url: null, created_by: 'u-freddy', created_at: t0, updated_at: ts(-1), ...extra,
+    record_date: null, edit_date: null, due_date: null, final_url: null, publish_by_us: false, publish_at: null, published_at: null, published_url: null, created_by: 'u-freddy', created_at: t0, updated_at: ts(-1), ...extra,
   })
 
   const videos = [
@@ -47,12 +53,12 @@ export function seed() {
       record_date: d(-2), edit_date: d(1), due_date: d(3),
     }),
     v('v-brochas', 'c-luna', 'b-luna', 2, 'Brochas Aria', 'por_grabar', { brief: 'Para qué sirve cada brocha del set.', record_date: d(2), due_date: d(5) }),
-    v('v-delineadores', 'c-luna', 'b-luna', 3, 'Delineadores', 'editado', { brief: 'Mostrar colores y aplicación.', record_date: d(-4), due_date: d(1) }),
+    v('v-delineadores', 'c-luna', 'b-luna', 3, 'Delineadores', 'editado', { brief: 'Mostrar colores y aplicación.', record_date: d(-4), due_date: d(1), publish_by_us: true, publish_at: hora(-1, 18) }),
     v('v-laser', 'c-tinoco', 'b-tinoco', 1, 'Beneficios del láser', 'por_grabar', { record_date: d(1), due_date: d(6) }),
     v('v-dental', 'c-tinoco', 'b-tinoco', 2, 'Cuidado dental', 'en_edicion', { record_date: d(-1), edit_date: d(2), due_date: d(4) }),
     v('v-reel', 'c-tinoco', 'b-tinoco', 3, 'Reel educativo: mitos', 'idea', {}),
-    v('v-coleccion', 'c-estilos', 'b-estilos', 1, 'Nueva colección', 'grabado', { record_date: d(-1), edit_date: d(2), due_date: d(4) }),
-    v('v-antes', 'c-estilos', 'b-estilos', 2, 'Antes y después', 'entregado', { record_date: d(-5), due_date: d(-1), final_url: 'https://drive.google.com/ejemplo' }),
+    v('v-coleccion', 'c-estilos', 'b-estilos', 1, 'Nueva colección', 'grabado', { record_date: d(-1), edit_date: d(2), due_date: d(4), publish_by_us: true, publish_at: hora(5, 12) }),
+    v('v-antes', 'c-estilos', 'b-estilos', 2, 'Antes y después', 'entregado', { record_date: d(-5), due_date: d(-1), final_url: 'https://drive.google.com/ejemplo', publish_by_us: true, publish_at: hora(0, 23, 30) }),
   ]
 
   const a = (video_id: string, user_id: string, kind: string) => ({ video_id, user_id, kind })

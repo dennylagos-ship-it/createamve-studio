@@ -6,6 +6,7 @@ import { ASIGNACIONES } from '../../lib/status'
 import { fmtDateTime, pad2 } from '../../lib/format'
 import { gcalLink } from '../../lib/gcal'
 import { supabase } from '../../lib/supabase'
+import Publicacion from './Publicacion'
 import { AutoField, Avatar, ConfirmButton, useRun } from '../../components/ui'
 import type { Comment, TipoAsignacion, Video } from '../../lib/types'
 
@@ -96,6 +97,9 @@ export default function Resumen({ video }: { video: Video }) {
             )
           })}
         </div>
+
+        <h3>Publicación</h3>
+        <Publicacion video={video} />
 
         <h3>Lote</h3>
         <select id="v-lote" value={video.batch_id ?? ''} onChange={(e) => save({ batch_id: e.target.value || null })}>

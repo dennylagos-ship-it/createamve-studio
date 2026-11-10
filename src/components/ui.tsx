@@ -52,6 +52,7 @@ export function useRun() {
 }
 
 export function traducirError(msg: string) {
+  if (/schema cache|column .* does not exist/i.test(msg)) return 'Falta actualizar la base de datos en Supabase (hay un SQL pendiente). Avísale a Denny.'
   if (/row-level security/i.test(msg)) return 'No tienes permiso para hacer eso. Pide a un administrador que lo haga.'
   if (/Failed to fetch|NetworkError|network/i.test(msg)) return 'Sin conexión. Revisa tu internet e inténtalo de nuevo.'
   if (/Invalid login credentials/i.test(msg)) return 'Correo o contraseña incorrectos.'

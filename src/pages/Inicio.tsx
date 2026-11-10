@@ -30,6 +30,7 @@ export default function Inicio() {
       v.record_date && ['idea', 'por_grabar'].includes(v.status) ? { v, d: v.record_date, k: 'Grabación' } : null,
       v.edit_date && ['grabado', 'en_edicion'].includes(v.status) ? { v, d: v.edit_date, k: 'Edición' } : null,
       v.due_date ? { v, d: v.due_date, k: 'Entrega' } : null,
+      v.publish_by_us && v.publish_at && !v.published_at ? { v, d: toDay(new Date(v.publish_at)), k: 'Publicación' } : null,
     ])
     .filter((x): x is { v: Video; d: string; k: string } => !!x && x.d <= limite)
     .sort((a, b) => a.d.localeCompare(b.d))
@@ -67,7 +68,7 @@ export default function Inicio() {
           </header>
           {grabarHoy.length > 0 && <p className="today-note">🎬 Hoy se graban {grabarHoy.length} video{grabarHoy.length > 1 ? 's' : ''}.</p>}
           {proximas.length === 0 ? (
-            <Empty title="Sin fechas cercanas">Asigna fechas de grabación, edición o entrega en cada video.</Empty>
+            <Empty title="Sin fechas cercanas">Asigna fechas de grabación, edición, entrega o publicación en cada video.</Empty>
           ) : (
             <ul className="agenda">
               {proximas.map(({ v, d, k }) => (

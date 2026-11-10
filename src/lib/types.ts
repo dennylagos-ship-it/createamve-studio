@@ -80,6 +80,11 @@ export interface Video {
   edit_date: string | null
   due_date: string | null
   final_url: string | null
+  /** La agencia publica el video por el cliente. */
+  publish_by_us: boolean
+  publish_at: string | null
+  published_at: string | null
+  published_url: string | null
   created_by: string | null
   created_at: string
   updated_at: string
