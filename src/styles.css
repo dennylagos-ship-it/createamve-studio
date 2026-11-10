@@ -157,7 +157,8 @@ label.check.big { font-size: 16px; }
   padding: 22px 16px; border-right: 1px solid var(--borde); background: var(--fondo);
 }
 .brand { display: flex; align-items: center; gap: 10px; }
-.brand img { width: 40px; height: 40px; object-fit: contain; }
+.brand img { width: 56px; height: 56px; object-fit: contain; flex: none; }
+.auth-card .brand img { width: 76px; height: 76px; }
 .brand span { display: grid; line-height: 1; }
 .brand b { font: 700 15px var(--f-display); letter-spacing: .01em; }
 .brand i { font: italic 800 17px var(--f-body); color: var(--amarillo); margin-top: 2px; }
@@ -473,7 +474,7 @@ label.check.big { font-size: 16px; }
   .mobile-brand { display: block; }
   .mobile-brand .brand b { font-size: 13px; }
   .mobile-brand .brand i { font-size: 14px; }
-  .mobile-brand .brand img { width: 32px; height: 32px; }
+  .mobile-brand .brand img { width: 46px; height: 46px; }
   .topbar { flex-wrap: wrap; padding: calc(10px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left)); }
   .search { order: 3; flex-basis: 100%; max-width: none; }
   .me-name { display: none; }
