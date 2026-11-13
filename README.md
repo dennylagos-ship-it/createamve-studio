@@ -1,4 +1,27 @@
-# CREATEAMVE Studio
+<p align="center">
+  <img src=".github/frontino-oso.png" alt="Frontino Software Solutions" height="96">
+</p>
+
+<h1 align="center">CREATEAMVE Studio</h1>
+<p align="center"><b>Gestión de producción audiovisual de Crea Teamve</b><br>Cliente → lote → video → guion → clips → responsables → estado → entrega</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/PWA-React%20%2B%20Vite-1B2A41?logo=react&logoColor=white" alt="PWA: React + Vite">
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" alt="TypeScript: 5">
+  <img src="https://img.shields.io/badge/Backend-Supabase-3ECF8E?logo=supabase&logoColor=white" alt="Backend: Supabase">
+</p>
+
+---
+
+## Funciones principales
+
+- 👥 **Clientes y lotes** de videos, con su historial.
+- 🎬 **Ficha de cada video**: guion, clips originales, responsables y estado de producción.
+- 🗓️ **Calendario** de publicación sincronizado con Google Calendar.
+- 💡 **Banco de ideas** y vista de **producción** del equipo.
+- 💬 **WhatsApp con clientes** para aprobar entregas.
+
+Es la instalación de [Frontino Studio](https://github.com/dennylagos-ship-it/Frontino-studio) para la agencia Crea Teamve, con su propia base de datos de Supabase.
 
 App de gestión de producción audiovisual de Createamve: **cliente → lote → video → guion → clips originales → responsables → estado → entrega**. Sin módulo de Pagos.
 
@@ -75,3 +98,17 @@ Cada cliente tiene su número de WhatsApp (Ficha creativa). Desde la ficha del c
 abre un mensaje listo (guion para aprobar, fecha de grabación, video para revisión, entrega o mensaje libre) que se puede
 editar y se envía desde la propia app de WhatsApp (`wa.me`). Opcionalmente queda copia en los comentarios del video.
 No usa la API de WhatsApp Business: no hay costo ni verificación de Meta, pero tampoco envíos automáticos ni lectura de respuestas.
+
+---
+
+## Licencia
+
+Desarrollado por **Frontino Software Solutions** para **Crea Teamve**. El código es © 2026 Frontino Software Solutions; la marca, los textos y las imágenes pertenecen a Crea Teamve.
+
+<p align="center">
+  <img src=".github/frontino-oso.png" alt="Frontino Software Solutions" height="56"><br>
+  <b>Frontino Software Solutions</b> · Táchira, Venezuela<br>
+  <i>«El poder de las grandes ideas hecho software»</i><br>
+  Apps Android · páginas web · aulas virtuales · sistemas a la medida · chatbots con IA<br>
+  📱 WhatsApp: <a href="https://wa.me/584247714625">+58 424 771 4625</a> · Instagram: <a href="https://instagram.com/frontino.software">@frontino.software</a>
+</p>
